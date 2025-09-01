@@ -45,7 +45,7 @@ export default function SudokuPage() {
     }
   };
 
-  const handleNumberClick = useCallback((num: number) => {
+  const handleNumberInput = useCallback((num: number) => {
     if (selectedCell) {
       const newBoard = [...board];
       newBoard[selectedCell.row][selectedCell.col] = num;
@@ -88,7 +88,7 @@ export default function SudokuPage() {
 
         const key = event.key;
         if (key >= '1' && key <= '9') {
-            handleNumberClick(parseInt(key));
+            handleNumberInput(parseInt(key));
         } else if (key === 'Backspace' || key === 'Delete') {
             clearSelection();
         }
@@ -98,11 +98,11 @@ export default function SudokuPage() {
     return () => {
         window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [selectedCell, handleNumberClick, clearSelection]);
+  }, [selectedCell, handleNumberInput, clearSelection]);
 
   return (
     <main className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
-      <div className="w-full max-w-md">
+      <div className="w-full max-w-fit">
         <div className="mb-4">
           <Button asChild variant="ghost" className="text-muted-foreground">
             <Link href="/">
@@ -117,7 +117,7 @@ export default function SudokuPage() {
               <Brain /> সুডোকু
             </CardTitle>
           </CardHeader>
-          <CardContent className="flex flex-col items-center gap-4">
+          <CardContent className="flex flex-col md:flex-row items-center md:items-start gap-4 p-4">
             <div className="grid grid-cols-9 border-collapse">
               {board.map((row: number[], rowIndex: number) =>
                 row.map((cell: number, colIndex: number) => {
@@ -149,24 +149,16 @@ export default function SudokuPage() {
               )}
             </div>
 
-            <div className="grid grid-cols-5 gap-2 w-full">
-              {Array.from({ length: 9 }, (_, i) => (
-                <Button key={i + 1} onClick={() => handleNumberClick(i + 1)} variant="outline">
-                  {i + 1}
-                </Button>
-              ))}
-              <Button onClick={clearSelection} variant="destructive" className="col-span-2">
-                <XCircle className="mr-2 h-4 w-4" /> মুছুন
-              </Button>
-            </div>
-            
-            <div className="flex gap-4 w-full">
+            <div className="flex md:flex-col gap-4">
                 <Button onClick={checkSolution} className="w-full">
                     <CheckCircle className="mr-2 h-4 w-4" /> সমাধান যাচাই
                 </Button>
                 <Button onClick={resetBoard} variant="secondary" className="w-full">
                     <RotateCw className="mr-2 h-4 w-4" /> রিসেট
                 </Button>
+                <Button onClick={clearSelection} variant="destructive" className="w-full">
+                    <XCircle className="mr-2 h-4 w-4" /> মুছুন
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -174,3 +166,4 @@ export default function SudokuPage() {
     </main>
   );
 }
+
