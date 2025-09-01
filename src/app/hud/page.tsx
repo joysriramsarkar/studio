@@ -9,9 +9,9 @@ export default function HUDPage() {
   return (
     <div className="relative w-screen h-screen overflow-hidden">
       <Image
-        src="https://picsum.photos/1920/1081"
+        src="https://picsum.photos/1920/1080"
         alt="In-game view"
-        data-ai-hint="first person shooter"
+        data-ai-hint="first person shooter game"
         fill
         className="object-cover"
       />
