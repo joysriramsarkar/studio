@@ -42,9 +42,12 @@ export default function HUDPage() {
   const gunshotSoundRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    backgroundMusicRef.current = new Audio("https://cdn.pixabay.com/audio/2022/11/22/audio_1de1bb2c6a.mp3");
-    backgroundMusicRef.current.loop = true;
-    gunshotSoundRef.current = new Audio("https://cdn.pixabay.com/audio/2022/01/18/audio_8b22915238.mp3");
+    // These will only run on the client, after initial hydration
+    if (typeof Audio !== 'undefined') {
+        backgroundMusicRef.current = new Audio("/audio/background-music.mp3");
+        backgroundMusicRef.current.loop = true;
+        gunshotSoundRef.current = new Audio("/audio/gunshot.mp3");
+    }
   }, []);
 
   const startGame = () => {
