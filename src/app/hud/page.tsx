@@ -1,253 +1,193 @@
 'use client';
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, Crosshair, Heart, Target, Play, Clock } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { ArrowLeft, Play, RotateCw, Apple, Trophy } from 'lucide-react';
+import Link from 'next/link';
 
-interface TargetProps {
-  id: number;
-  x: number;
-  y: number;
-}
+const GRID_SIZE = 20;
+const BOARD_SIZE = 400;
 
-interface HitEffectProps {
-  id: number;
-  x: number;
-  y: number;
-}
+const getRandomCoordinate = () => {
+  return {
+    x: Math.floor(Math.random() * GRID_SIZE),
+    y: Math.floor(Math.random() * GRID_SIZE),
+  };
+};
 
-function BulletHole({ x, y }: { x: number, y: number }) {
-  return (
-    <div
-      className="absolute transform -translate-x-1/2 -translate-y-1/2"
-      style={{ left: `${x}%`, top: `${y}%` }}
-    >
-      <div className="w-3 h-3 bg-yellow-400 rounded-full opacity-75 animate-ping"></div>
-    </div>
-  )
-}
-
-export default function HUDPage() {
+export default function SnakeGamePage() {
+  const [snake, setSnake] = useState([{ x: 10, y: 10 }]);
+  const [food, setFood] = useState(getRandomCoordinate());
+  const [direction, setDirection] = useState<'UP' | 'DOWN' | 'LEFT' | 'RIGHT'>('RIGHT');
+  const [speed, setSpeed] = useState<number | null>(null);
+  const [gameOver, setGameOver] = useState(false);
   const [score, setScore] = useState(0);
-  const [targets, setTargets] = useState<TargetProps[]>([]);
-  const [hitEffects, setHitEffects] = useState<HitEffectProps[]>([]);
-  const [gameActive, setGameActive] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(30);
-
-  const backgroundMusicRef = useRef<HTMLAudioElement | null>(null);
-  const gunshotSoundRef = useRef<HTMLAudioElement | null>(null);
-
-  useEffect(() => {
-    // These will only run on the client, after initial hydration
-    if (typeof Audio !== 'undefined') {
-        backgroundMusicRef.current = new Audio("/audio/background-music.mp3");
-        backgroundMusicRef.current.loop = true;
-        gunshotSoundRef.current = new Audio("/audio/gunshot.mp3");
-    }
-  }, []);
 
   const startGame = () => {
+    setSnake([{ x: 10, y: 10 }]);
+    setFood(getRandomCoordinate());
+    setDirection('RIGHT');
+    setSpeed(200);
+    setGameOver(false);
     setScore(0);
-    setTargets([]);
-    setHitEffects([]);
-    setTimeLeft(30);
-    setGameActive(true);
-    backgroundMusicRef.current?.play();
   };
 
-  const stopGame = useCallback(() => {
-    setGameActive(false);
-    setTargets([]);
-    if (backgroundMusicRef.current) {
-      backgroundMusicRef.current.pause();
-      backgroundMusicRef.current.currentTime = 0;
-    }
-  }, []);
+  const moveSnake = useCallback(() => {
+    if (gameOver) return;
 
-  const handleTargetClick = (target: TargetProps) => {
-    if (!gameActive) return;
-    
-    if (gunshotSoundRef.current) {
-      gunshotSoundRef.current.currentTime = 0;
-      gunshotSoundRef.current.play();
-    }
-    setScore((prevScore) => prevScore + 10);
-    setTargets((prevTargets) => prevTargets.filter((t) => t.id !== target.id));
-    
-    const newHit: HitEffectProps = { id: Date.now(), x: target.x, y: target.y };
-    setHitEffects(prev => [...prev, newHit]);
+    setSnake((prevSnake) => {
+      const newSnake = [...prevSnake];
+      const head = { ...newSnake[0] };
 
-    setTimeout(() => {
-      setHitEffects(prev => prev.filter(h => h.id !== newHit.id));
-    }, 300);
-  };
+      switch (direction) {
+        case 'UP': head.y -= 1; break;
+        case 'DOWN': head.y += 1; break;
+        case 'LEFT': head.x -= 1; break;
+        case 'RIGHT': head.x += 1; break;
+      }
 
-  const createTarget = useCallback(() => {
-    const newTarget: TargetProps = {
-      id: Date.now(),
-      x: Math.random() * 85, 
-      y: Math.random() * 70, 
-    };
-    setTargets((prevTargets) => [...prevTargets, newTarget]);
-  }, []);
+      // Wall collision
+      if (head.x < 0 || head.x >= GRID_SIZE || head.y < 0 || head.y >= GRID_SIZE) {
+        setGameOver(true);
+        setSpeed(null);
+        return prevSnake;
+      }
+
+      // Self collision
+      for (const segment of newSnake) {
+        if (segment.x === head.x && segment.y === head.y) {
+          setGameOver(true);
+          setSpeed(null);
+          return prevSnake;
+        }
+      }
+
+      newSnake.unshift(head);
+
+      // Food collision
+      if (head.x === food.x && head.y === food.y) {
+        setScore((s) => s + 10);
+        let newFoodPosition;
+        let isFoodOnSnake;
+        do {
+            isFoodOnSnake = false;
+            newFoodPosition = getRandomCoordinate();
+            for (const segment of newSnake) {
+                if (segment.x === newFoodPosition.x && segment.y === newFoodPosition.y) {
+                    isFoodOnSnake = true;
+                    break;
+                }
+            }
+        } while (isFoodOnSnake);
+
+        setFood(newFoodPosition);
+        
+        // Increase speed
+        setSpeed(s => Math.max(50, (s || 200) * 0.95));
+
+      } else {
+        newSnake.pop();
+      }
+
+      return newSnake;
+    });
+  }, [direction, food, gameOver]);
 
   useEffect(() => {
-    let gameTimer: NodeJS.Timeout;
-    let targetInterval: NodeJS.Timeout;
-
-    if (gameActive) {
-      gameTimer = setInterval(() => {
-        setTimeLeft((prev) => {
-          if (prev <= 1) {
-            clearInterval(gameTimer);
-            if (targetInterval) clearInterval(targetInterval);
-            stopGame();
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-
-      targetInterval = setInterval(() => {
-        createTarget();
-      }, 1200);
-
-      return () => {
-        clearInterval(gameTimer);
-        clearInterval(targetInterval);
-      };
-    }
-  }, [gameActive, createTarget, stopGame]);
-  
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    const cleanupTargets = () => {
-      const now = Date.now();
-      setTargets(prevTargets => prevTargets.filter(t => (now - t.id) < 2000));
+    const handleKeyDown = (e: KeyboardEvent) => {
+      switch (e.key) {
+        case 'ArrowUp': if (direction !== 'DOWN') setDirection('UP'); break;
+        case 'ArrowDown': if (direction !== 'UP') setDirection('DOWN'); break;
+        case 'ArrowLeft': if (direction !== 'RIGHT') setDirection('LEFT'); break;
+        case 'ArrowRight': if (direction !== 'LEFT') setDirection('RIGHT'); break;
+      }
     };
 
-    if(gameActive) {
-        interval = setInterval(cleanupTargets, 500);
-        return () => clearInterval(interval);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [direction]);
+
+  useEffect(() => {
+    if (speed !== null && !gameOver) {
+      const gameInterval = setInterval(moveSnake, speed);
+      return () => clearInterval(gameInterval);
     }
-  }, [gameActive]);
+  }, [snake, speed, gameOver, moveSnake]);
 
   return (
-    <div className="relative w-screen h-screen overflow-hidden">
-      <Image
-        src="https://picsum.photos/1920/1080"
-        alt="In-game view"
-        data-ai-hint="first person shooter game"
-        fill
-        className="object-cover"
-      />
-      <div className="absolute inset-0 bg-background/30" />
-
-      {/* Hit Effects */}
-      {hitEffects.map((hit) => (
-         <BulletHole key={hit.id} x={hit.x} y={hit.y} />
-      ))}
-
-
-      {/* Targets */}
-      {targets.map((target) => (
-        <div
-          key={target.id}
-          className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer"
-          style={{ left: `${target.x}%`, top: `${target.y}%` }}
-          onClick={() => handleTargetClick(target)}
-        >
-          <Target className="h-10 w-10 text-red-500 animate-pulse" />
-        </div>
-      ))}
-
-      {/* Back Button */}
-      <div className="absolute top-4 left-4 z-20">
-        <Button asChild variant="secondary" onClick={stopGame}>
-          <Link href="/">
-            <ArrowLeft className="mr-2 h-4 w-4" /> প্রধান মেনু
-          </Link>
-        </Button>
-      </div>
-      
-      {/* Customize Weapon Button */}
-       <div className="absolute top-4 right-4 z-20">
-        <Button asChild onClick={stopGame}>
-          <Link href="/customization">
-            <Target className="mr-2 h-4 w-4" /> অস্ত্র কাস্টমাইজ করুন
-          </Link>
-        </Button>
-      </div>
-
-      {/* Game UI */}
-      {!gameActive && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-black/50">
-          <div className="text-center text-white">
-            <h2 className="text-4xl font-bold mb-4">
-              {timeLeft === 0 ? "গেম ওভার!" : "টার্গেট প্র্যাকটিস"}
-            </h2>
-            {timeLeft === 0 && (
-              <p className="text-2xl mb-4">আপনার স্কোর: {score}</p>
-            )}
-            <Button onClick={startGame} size="lg">
-              <Play className="mr-2 h-5 w-5" />
-              {timeLeft === 0 ? "আবার খেলুন" : "খেলা শুরু করুন"}
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {/* HUD Elements */}
-      <div className="absolute bottom-6 left-6 z-10 grid gap-4">
-        <Card className="bg-card/80 backdrop-blur-sm w-64">
-            <CardContent className="p-4">
+    <main className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
+      <div className="w-full max-w-lg">
+         <div className="mb-4 flex justify-between items-center">
+          <Button asChild variant="ghost" className="text-muted-foreground">
+            <Link href="/">
+              <ArrowLeft className="mr-2 h-4 w-4" /> প্রধান মেনু
+            </Link>
+          </Button>
+          <Card className="bg-card/80 backdrop-blur-sm">
+            <CardContent className="p-3">
                 <div className="flex items-center gap-3">
-                <Clock className="h-8 w-8 text-primary" />
-                <div className="flex-grow">
-                    <p className="text-xs text-muted-foreground">বাকি সময়</p>
-                    <div className="text-2xl font-bold">{timeLeft}s</div>
+                    <Trophy className="h-6 w-6 text-primary" />
+                    <div>
+                        <p className="text-xs text-muted-foreground">স্কোর</p>
+                        <div className="text-xl font-bold">{score}</div>
+                    </div>
                 </div>
-                <div className="text-right">
-                    <p className="text-xs text-muted-foreground">স্কোর</p>
-                    <div className="text-2xl font-bold">{score}</div>
-                </div>
+            </CardContent>
+          </Card>
+        </div>
+        
+        <Card>
+            <CardContent className="p-4 flex items-center justify-center relative">
+                <div
+                    className="relative bg-muted/20 border-2 border-primary/20"
+                    style={{ width: BOARD_SIZE, height: BOARD_SIZE }}
+                >
+                    {snake.map((segment, index) => (
+                    <div
+                        key={index}
+                        className={`absolute ${index === 0 ? 'bg-primary' : 'bg-primary/70'} rounded-sm`}
+                        style={{
+                        left: segment.x * (BOARD_SIZE / GRID_SIZE),
+                        top: segment.y * (BOARD_SIZE / GRID_SIZE),
+                        width: BOARD_SIZE / GRID_SIZE,
+                        height: BOARD_SIZE / GRID_SIZE,
+                        }}
+                    />
+                    ))}
+                    <div
+                        className="absolute text-2xl"
+                        style={{
+                            left: food.x * (BOARD_SIZE / GRID_SIZE),
+                            top: food.y * (BOARD_SIZE / GRID_SIZE),
+                        }}
+                        >
+                        <Apple className="h-5 w-5 text-red-500" />
+                    </div>
+
+                    {speed === null && (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-black/70">
+                            <div className="text-center text-white">
+                                <h2 className="text-4xl font-bold mb-4">
+                                {gameOver ? "গেম ওভার!" : "সাপের গেম"}
+                                </h2>
+                                {gameOver && (
+                                <p className="text-2xl mb-4">আপনার স্কোর: {score}</p>
+                                )}
+                                <Button onClick={startGame} size="lg">
+                                    {gameOver ? <RotateCw className="mr-2 h-5 w-5" /> : <Play className="mr-2 h-5 w-5" />}
+                                    {gameOver ? "আবার খেলুন" : "খেলা শুরু করুন"}
+                                </Button>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </CardContent>
         </Card>
-        <Card className="bg-card/80 backdrop-blur-sm w-64">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <Heart className="h-8 w-8 text-primary" />
-              <div className="flex-grow">
-                <p className="text-xs text-muted-foreground">স্বাস্থ্য</p>
-                <Progress value={85} className="h-3" />
-              </div>
-              <span className="text-xl font-bold">৮৫</span>
-            </div>
-          </CardContent>
-        </Card>
+        <p className="text-center text-muted-foreground mt-4">
+            সরানোর জন্য অ্যারো কী ব্যবহার করুন।
+        </p>
       </div>
-
-      <div className="absolute bottom-6 right-6 z-10">
-        <Card className="bg-card/80 backdrop-blur-sm w-64">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="text-right flex-grow">
-                <p className="text-xs text-muted-foreground">অ্যামো</p>
-                <div className="text-4xl font-black tracking-tighter">
-                  <span className="text-primary">২৮</span>
-                  <span className="text-2xl text-muted-foreground">/ ১২০</span>
-                </div>
-              </div>
-              <Crosshair className="h-10 w-10 text-primary" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
+    </main>
   );
 }
