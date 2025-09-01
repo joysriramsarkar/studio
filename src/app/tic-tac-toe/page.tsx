@@ -71,6 +71,7 @@ export default function TicTacToePage() {
   const renderSquare = (index: number) => {
     return (
       <button
+        key={index}
         className="w-24 h-24 bg-muted/50 rounded-lg flex items-center justify-center text-6xl font-bold transition-colors hover:bg-muted"
         onClick={() => handleClick(index)}
       >
