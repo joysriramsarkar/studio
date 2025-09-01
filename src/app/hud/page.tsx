@@ -23,10 +23,10 @@ interface HitEffectProps {
 function BulletHole({ x, y }: { x: number, y: number }) {
   return (
     <div
-      className="absolute transform -translate-x-1/2 -translate-y-1/2 animate-ping"
+      className="absolute transform -translate-x-1/2 -translate-y-1/2"
       style={{ left: `${x}%`, top: `${y}%` }}
     >
-      <div className="w-3 h-3 bg-yellow-400 rounded-full opacity-75"></div>
+      <div className="w-3 h-3 bg-yellow-400 rounded-full opacity-75 animate-ping"></div>
     </div>
   )
 }
@@ -38,8 +38,14 @@ export default function HUDPage() {
   const [gameActive, setGameActive] = useState(false);
   const [timeLeft, setTimeLeft] = useState(30);
 
-  const backgroundMusicRef = useRef<HTMLAudioElement>(null);
-  const gunshotSoundRef = useRef<HTMLAudioElement>(null);
+  const backgroundMusicRef = useRef<HTMLAudioElement | null>(null);
+  const gunshotSoundRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    backgroundMusicRef.current = new Audio("https://cdn.pixabay.com/audio/2022/11/22/audio_1de1bb2c6a.mp3");
+    backgroundMusicRef.current.loop = true;
+    gunshotSoundRef.current = new Audio("https://cdn.pixabay.com/audio/2022/01/18/audio_8b22915238.mp3");
+  }, []);
 
   const startGame = () => {
     setScore(0);
@@ -62,7 +68,10 @@ export default function HUDPage() {
   const handleTargetClick = (target: TargetProps) => {
     if (!gameActive) return;
     
-    gunshotSoundRef.current?.play();
+    if (gunshotSoundRef.current) {
+      gunshotSoundRef.current.currentTime = 0;
+      gunshotSoundRef.current.play();
+    }
     setScore((prevScore) => prevScore + 10);
     setTargets((prevTargets) => prevTargets.filter((t) => t.id !== target.id));
     
@@ -126,8 +135,6 @@ export default function HUDPage() {
 
   return (
     <div className="relative w-screen h-screen overflow-hidden">
-      <audio ref={backgroundMusicRef} src="https://cdn.pixabay.com/audio/2022/11/22/audio_1de1bb2c6a.mp3" loop />
-      <audio ref={gunshotSoundRef} src="https://cdn.pixabay.com/audio/2022/01/18/audio_8b22915238.mp3" />
       <Image
         src="https://picsum.photos/1920/1080"
         alt="In-game view"
