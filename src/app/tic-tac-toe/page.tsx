@@ -17,6 +17,19 @@ const winningCombinations = [
   [2, 4, 6],
 ];
 
+const calculateWinner = (squares: (string | null)[]) => {
+  for (let i = 0; i < winningCombinations.length; i++) {
+    const [a, b, c] = winningCombinations[i];
+    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+      return squares[a];
+    }
+  }
+  if (squares.every(square => square !== null)) {
+    return 'Draw';
+  }
+  return null;
+};
+
 export default function TicTacToePage() {
   const [board, setBoard] = useState(Array(9).fill(null));
   const [isXNext, setIsXNext] = useState(true);
@@ -24,28 +37,49 @@ export default function TicTacToePage() {
   const [scores, setScores] = useState({ X: 0, O: 0 });
 
   const handleClick = (index: number) => {
-    if (board[index] || winner) {
+    if (board[index] || winner || !isXNext) {
       return;
     }
 
     const newBoard = board.slice();
-    newBoard[index] = isXNext ? 'X' : 'O';
+    newBoard[index] = 'X';
     setBoard(newBoard);
-    setIsXNext(!isXNext);
+    setIsXNext(false);
   };
 
-  const calculateWinner = (squares: (string | null)[]) => {
-    for (let i = 0; i < winningCombinations.length; i++) {
-      const [a, b, c] = winningCombinations[i];
-      if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-        return squares[a];
+  const findBestMove = (squares: (string | null)[]) => {
+    // 1. Check if bot can win
+    for (let i = 0; i < 9; i++) {
+      if (!squares[i]) {
+        const newBoard = squares.slice();
+        newBoard[i] = 'O';
+        if (calculateWinner(newBoard) === 'O') {
+          return i;
+        }
       }
     }
-    if (squares.every(square => square !== null)) {
-      return 'Draw';
+
+    // 2. Check if player can win and block
+    for (let i = 0; i < 9; i++) {
+      if (!squares[i]) {
+        const newBoard = squares.slice();
+        newBoard[i] = 'X';
+        if (calculateWinner(newBoard) === 'X') {
+          return i;
+        }
+      }
     }
-    return null;
-  };
+    
+    // 3. Take center if available
+    if (!squares[4]) return 4;
+
+    // 4. Pick a random available square
+    const availableMoves = squares
+        .map((val, index) => (val === null ? index : null))
+        .filter(val => val !== null);
+    
+    return availableMoves[Math.floor(Math.random() * availableMoves.length)] as number;
+  }
 
   const resetGame = (isNewRound: boolean = false) => {
     setBoard(Array(9).fill(null));
@@ -65,15 +99,28 @@ export default function TicTacToePage() {
       } else if (gameWinner === 'O') {
         setScores(prev => ({ ...prev, O: prev.O + 1 }));
       }
+    } else if (!isXNext) {
+        // Bot's turn
+        const timeout = setTimeout(() => {
+            const bestMove = findBestMove(board);
+            if(bestMove !== undefined) {
+                const newBoard = board.slice();
+                newBoard[bestMove] = 'O';
+                setBoard(newBoard);
+                setIsXNext(true);
+            }
+        }, 500); // Add a small delay for better user experience
+        return () => clearTimeout(timeout);
     }
-  }, [board]);
+  }, [board, isXNext]);
 
   const renderSquare = (index: number) => {
     return (
       <button
         key={index}
-        className="w-24 h-24 bg-muted/50 rounded-lg flex items-center justify-center text-6xl font-bold transition-colors hover:bg-muted"
+        className="w-24 h-24 bg-muted/50 rounded-lg flex items-center justify-center text-6xl font-bold transition-colors hover:bg-muted disabled:cursor-not-allowed"
         onClick={() => handleClick(index)}
+        disabled={!isXNext || !!board[index]}
       >
         {board[index] === 'X' && <X className="w-16 h-16 text-primary" />}
         {board[index] === 'O' && <Circle className="w-16 h-16 text-red-500" />}
@@ -111,7 +158,7 @@ export default function TicTacToePage() {
                     <p className="text-3xl font-bold text-primary">{scores.X}</p>
                 </div>
                 <div className="text-center">
-                    <p className="text-lg font-semibold">প্লেয়ার O</p>
+                    <p className="text-lg font-semibold">প্লেয়ার O (বট)</p>
                     <p className="text-3xl font-bold text-red-500">{scores.O}</p>
                 </div>
             </div>
