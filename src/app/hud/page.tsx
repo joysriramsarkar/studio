@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ArrowLeft, Play, RotateCw, Apple, Trophy } from 'lucide-react';
@@ -23,6 +24,32 @@ export default function SnakeGamePage() {
   const [speed, setSpeed] = useState<number | null>(null);
   const [gameOver, setGameOver] = useState(false);
   const [score, setScore] = useState(0);
+
+  const eatSoundRef = useRef<HTMLAudioElement>(null);
+  const gameOverSoundRef = useRef<HTMLAudioElement>(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+        eatSoundRef.current = new Audio('/eat.mp3');
+        gameOverSoundRef.current = new Audio('/game-over.mp3');
+
+        const volume = localStorage.getItem('volume');
+        if (volume) {
+            const vol = Number(volume) / 100;
+            eatSoundRef.current.volume = vol;
+            gameOverSoundRef.current.volume = vol;
+        }
+    }
+  }, []);
+
+  const playEatSound = () => {
+    eatSoundRef.current?.play().catch(e => console.error("Error playing eat sound:", e));
+  };
+
+  const playGameOverSound = () => {
+    gameOverSoundRef.current?.play().catch(e => console.error("Error playing game over sound:", e));
+  };
+
 
   const startGame = () => {
     setSnake([{ x: 10, y: 10 }]);
@@ -51,6 +78,7 @@ export default function SnakeGamePage() {
       if (head.x < 0 || head.x >= GRID_SIZE || head.y < 0 || head.y >= GRID_SIZE) {
         setGameOver(true);
         setSpeed(null);
+        playGameOverSound();
         return prevSnake;
       }
 
@@ -59,6 +87,7 @@ export default function SnakeGamePage() {
         if (segment.x === head.x && segment.y === head.y) {
           setGameOver(true);
           setSpeed(null);
+          playGameOverSound();
           return prevSnake;
         }
       }
@@ -68,6 +97,7 @@ export default function SnakeGamePage() {
       // Food collision
       if (head.x === food.x && head.y === food.y) {
         setScore((s) => s + 10);
+        playEatSound();
         let newFoodPosition;
         let isFoodOnSnake;
         do {

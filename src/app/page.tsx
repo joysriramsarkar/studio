@@ -1,5 +1,6 @@
+
 import { Button } from "@/components/ui/button";
-import { LogOut, Settings, Swords, Puzzle, Gem } from "lucide-react";
+import { LogOut, Settings, Swords, Puzzle, Gem, Crosshair, Bot } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -19,6 +20,11 @@ export default function Home() {
           আয়রনক্ল্যাড
         </h1>
         <div className="flex flex-col gap-4 w-full max-w-xs">
+           <Button asChild size="lg" className="text-lg py-8">
+            <Link href="/slingshot">
+              <Crosshair className="mr-2 h-6 w-6" /> শ্যুটিং গেম
+            </Link>
+          </Button>
           <Button asChild size="lg" className="text-lg py-8">
             <Link href="/hud">
               <Swords className="mr-2 h-6 w-6" /> সাপের গেম
@@ -32,6 +38,11 @@ export default function Home() {
           <Button asChild size="lg" className="text-lg py-8">
             <Link href="/match-three">
               <Gem className="mr-2 h-6 w-6" /> ম্যাচ-থ্রি গেম
+            </Link>
+          </Button>
+           <Button asChild variant="secondary" size="lg" className="text-lg py-8">
+            <Link href="/customization">
+              <Bot className="mr-2 h-6 w-6" /> অস্ত্র কাস্টমাইজেশন
             </Link>
           </Button>
           <Button asChild variant="secondary" size="lg" className="text-lg py-8">
