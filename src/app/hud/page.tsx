@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, Crosshair, Heart, Target, Play, Clock, Minus } from "lucide-react";
+import { ArrowLeft, Crosshair, Heart, Target, Play, Clock } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect, useCallback } from "react";
@@ -69,12 +69,15 @@ export default function HUDPage() {
   }, []);
 
   useEffect(() => {
+    let gameTimer: NodeJS.Timeout;
+    let targetInterval: NodeJS.Timeout;
+
     if (gameActive) {
-      const gameTimer = setInterval(() => {
+      gameTimer = setInterval(() => {
         setTimeLeft((prev) => {
           if (prev <= 1) {
             clearInterval(gameTimer);
-            clearInterval(targetInterval);
+            if (targetInterval) clearInterval(targetInterval);
             setGameActive(false);
             setTargets([]);
             return 0;
@@ -83,7 +86,7 @@ export default function HUDPage() {
         });
       }, 1000);
 
-      const targetInterval = setInterval(() => {
+      targetInterval = setInterval(() => {
         createTarget();
       }, 1200);
 
@@ -95,13 +98,14 @@ export default function HUDPage() {
   }, [gameActive, createTarget]);
   
   useEffect(() => {
+    let interval: NodeJS.Timeout;
     const cleanupTargets = () => {
       const now = Date.now();
       setTargets(prevTargets => prevTargets.filter(t => (now - t.id) < 2000));
     };
 
     if(gameActive) {
-        const interval = setInterval(cleanupTargets, 500);
+        interval = setInterval(cleanupTargets, 500);
         return () => clearInterval(interval);
     }
   }, [gameActive]);
@@ -116,7 +120,7 @@ export default function HUDPage() {
         fill
         className="object-cover"
       />
-      <div className="absolute inset-0 bg-black/10" />
+      <div className="absolute inset-0 bg-background/30" />
 
       {/* Hit Effects */}
       {hitEffects.map((hit) => (
@@ -137,7 +141,7 @@ export default function HUDPage() {
       ))}
 
       {/* Back Button */}
-      <div className="absolute top-4 left-4 z-10">
+      <div className="absolute top-4 left-4 z-20">
         <Button asChild variant="secondary">
           <Link href="/">
             <ArrowLeft className="mr-2 h-4 w-4" /> প্রধান মেনু
@@ -146,7 +150,7 @@ export default function HUDPage() {
       </div>
       
       {/* Customize Weapon Button */}
-       <div className="absolute top-4 right-4 z-10">
+       <div className="absolute top-4 right-4 z-20">
         <Button asChild>
           <Link href="/customization">
             <Target className="mr-2 h-4 w-4" /> অস্ত্র কাস্টমাইজ করুন

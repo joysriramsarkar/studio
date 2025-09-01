@@ -5,7 +5,7 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <main className="relative min-h-screen flex flex-col items-center justify-center text-white overflow-hidden">
+    <main className="relative min-h-screen flex flex-col items-center justify-center text-foreground overflow-hidden">
       <Image
         src="https://picsum.photos/1920/1080"
         alt="Battlefield"
@@ -13,7 +13,7 @@ export default function Home() {
         fill
         className="object-cover z-0"
       />
-      <div className="absolute inset-0 bg-black/60 z-10" />
+      <div className="absolute inset-0 bg-background/60 z-10" />
       <div className="z-20 flex flex-col items-center gap-8 text-center px-4">
         <h1 className="text-7xl md:text-9xl font-black tracking-tighter uppercase drop-shadow-lg" style={{ WebkitTextStroke: '2px hsl(var(--primary))', color: 'transparent' }}>
           আয়রনক্ল্যাড
