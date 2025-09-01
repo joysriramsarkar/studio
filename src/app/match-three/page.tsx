@@ -23,95 +23,86 @@ const MatchThreePage = () => {
     setGrid(newBoard);
   }, []);
 
-  const checkForColumnOfFour = useCallback(() => {
+  const checkForMatches = (currentGrid: string[], setScore: React.Dispatch<React.SetStateAction<number>>) => {
+    let newGrid = [...currentGrid];
     let changed = false;
+  
+    // Check for column of four
     for (let i = 0; i <= 39; i++) {
       const columnOfFour = [i, i + WIDTH, i + WIDTH * 2, i + WIDTH * 3];
-      const decidedColor = grid[i];
-      const isBlank = grid[i] === '';
-
-      if (!isBlank && columnOfFour.every(square => grid[square] === decidedColor)) {
-        columnOfFour.forEach(square => grid[square] = '');
+      const decidedColor = newGrid[i];
+      const isBlank = newGrid[i] === '';
+      if (!isBlank && columnOfFour.every(square => newGrid[square] === decidedColor)) {
+        columnOfFour.forEach(square => newGrid[square] = '');
         setScore(prev => prev + 40);
         changed = true;
       }
     }
-    return changed;
-  }, [grid]);
-
-  const checkForRowOfFour = useCallback(() => {
-    let changed = false;
+  
+    // Check for row of four
     for (let i = 0; i < 64; i++) {
       const rowOfFour = [i, i + 1, i + 2, i + 3];
-      const decidedColor = grid[i];
-      const isBlank = grid[i] === '';
+      const decidedColor = newGrid[i];
+      const isBlank = newGrid[i] === '';
       const notValid = [5, 6, 7, 13, 14, 15, 21, 22, 23, 29, 30, 31, 37, 38, 39, 45, 46, 47, 53, 54, 55, 61, 62, 63];
-
       if (notValid.includes(i)) continue;
-
-      if (!isBlank && rowOfFour.every(square => grid[square] === decidedColor)) {
-        rowOfFour.forEach(square => grid[square] = '');
+      if (!isBlank && rowOfFour.every(square => newGrid[square] === decidedColor)) {
+        rowOfFour.forEach(square => newGrid[square] = '');
         setScore(prev => prev + 40);
         changed = true;
       }
     }
-    return changed;
-  }, [grid]);
   
-  const checkForColumnOfThree = useCallback(() => {
-    let changed = false;
+    // Check for column of three
     for (let i = 0; i <= 47; i++) {
       const columnOfThree = [i, i + WIDTH, i + WIDTH * 2];
-      const decidedColor = grid[i];
-      const isBlank = grid[i] === '';
-
-      if (!isBlank && columnOfThree.every(square => grid[square] === decidedColor)) {
-        columnOfThree.forEach(square => grid[square] = '');
+      const decidedColor = newGrid[i];
+      const isBlank = newGrid[i] === '';
+      if (!isBlank && columnOfThree.every(square => newGrid[square] === decidedColor)) {
+        columnOfThree.forEach(square => newGrid[square] = '');
         setScore(prev => prev + 30);
         changed = true;
       }
     }
-    return changed;
-  }, [grid]);
-
-  const checkForRowOfThree = useCallback(() => {
-    let changed = false;
+  
+    // Check for row of three
     for (let i = 0; i < 64; i++) {
       const rowOfThree = [i, i + 1, i + 2];
-      const decidedColor = grid[i];
-      const isBlank = grid[i] === '';
+      const decidedColor = newGrid[i];
+      const isBlank = newGrid[i] === '';
       const notValid = [6, 7, 14, 15, 22, 23, 30, 31, 38, 39, 46, 47, 54, 55, 62, 63];
-
       if (notValid.includes(i)) continue;
-
-      if (!isBlank && rowOfThree.every(square => grid[square] === decidedColor)) {
-        rowOfThree.forEach(square => grid[square] = '');
+      if (!isBlank && rowOfThree.every(square => newGrid[square] === decidedColor)) {
+        rowOfThree.forEach(square => newGrid[square] = '');
         setScore(prev => prev + 30);
         changed = true;
       }
     }
-    return changed;
-  }, [grid]);
+  
+    return { newGrid, changed };
+  };
 
   const moveIntoSquareBelow = useCallback(() => {
     let changed = false;
+    const newGrid = [...grid];
     for (let i = 0; i <= 55; i++) {
       const firstRow = [0, 1, 2, 3, 4, 5, 6, 7];
       const isFirstRow = firstRow.includes(i);
 
-      if (isFirstRow && grid[i] === '') {
-        grid[i] = candyColors[Math.floor(Math.random() * candyColors.length)];
+      if (isFirstRow && newGrid[i] === '') {
+        newGrid[i] = candyColors[Math.floor(Math.random() * candyColors.length)];
         changed = true;
       }
 
-      if (grid[i + WIDTH] === '') {
-        grid[i + WIDTH] = grid[i];
-        grid[i] = '';
+      if (newGrid[i + WIDTH] === '') {
+        newGrid[i + WIDTH] = newGrid[i];
+        newGrid[i] = '';
         changed = true;
       }
     }
-    if (changed) setGrid([...grid]);
-    return changed;
+    if (changed) {
+      setGrid(newGrid);
+    }
   }, [grid]);
 
   const dragStart = (e: React.DragEvent<HTMLDivElement>) => {
@@ -127,7 +118,6 @@ const MatchThreePage = () => {
 
     const newGrid = [...grid];
     const draggedItemColor = newGrid[draggedItem];
-    const replacedItemColor = newGrid[replacedItem];
     
     const validMoves = [
         draggedItem - 1,
@@ -140,19 +130,15 @@ const MatchThreePage = () => {
 
     if (validMove) {
         newGrid[replacedItem] = draggedItemColor;
-        newGrid[draggedItem] = replacedItemColor;
+        newGrid[draggedItem] = grid[replacedItem];
 
-        const isAColumnOfFour = checkForColumnOfFour();
-        const isARowOfFour = checkForRowOfFour();
-        const isAColumnOfThree = checkForColumnOfThree();
-        const isARowOfThree = checkForRowOfThree();
+        const { newGrid: gridAfterMatch, changed } = checkForMatches(newGrid, setScore);
 
-        if (isAColumnOfFour || isARowOfFour || isAColumnOfThree || isARowOfThree) {
-            setGrid(newGrid);
+        if (changed) {
+            setGrid(gridAfterMatch);
         } else {
-             const revertedGrid = [...newGrid];
-             revertedGrid[draggedItem] = draggedItemColor;
-             revertedGrid[replacedItem] = replacedItemColor;
+             // Revert if no match
+             const revertedGrid = [...grid];
              setGrid(revertedGrid);
         }
     }
@@ -161,22 +147,20 @@ const MatchThreePage = () => {
     setReplacedItem(null);
   };
 
-
   useEffect(() => {
     createBoard();
   }, [createBoard]);
   
   useEffect(() => {
     const timer = setInterval(() => {
-        const colFour = checkForColumnOfFour();
-        const rowFour = checkForRowOfFour();
-        const colThree = checkForColumnOfThree();
-        const rowThree = checkForRowOfThree();
+        const { newGrid, changed } = checkForMatches(grid, setScore);
+        if(changed) {
+            setGrid(newGrid);
+        }
         moveIntoSquareBelow();
-        setGrid([...grid]);
     }, 100);
     return () => clearInterval(timer);
-  }, [checkForColumnOfFour, checkForRowOfFour, checkForColumnOfThree, checkForRowOfThree, moveIntoSquareBelow, grid]);
+  }, [grid, moveIntoSquareBelow]);
 
   return (
     <main className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
@@ -223,7 +207,7 @@ const MatchThreePage = () => {
           </CardContent>
         </Card>
         <p className="text-center text-muted-foreground mt-4">
-            একই রকম তিনটি ফল মেলান।
+          একটি ফলকে টেনে এনে তার পাশের ফলের ওপর ছেড়ে দিয়ে জায়গা বদল করুন।
         </p>
       </div>
     </main>
