@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Brain, RotateCw, CheckCircle, XCircle } from 'lucide-react';
@@ -45,13 +45,13 @@ export default function SudokuPage() {
     }
   };
 
-  const handleNumberClick = (num: number) => {
+  const handleNumberClick = useCallback((num: number) => {
     if (selectedCell) {
       const newBoard = [...board];
       newBoard[selectedCell.row][selectedCell.col] = num;
       setBoard(newBoard);
     }
-  };
+  }, [selectedCell, board]);
 
   const checkSolution = () => {
     if (JSON.stringify(board) === JSON.stringify(solution)) {
@@ -74,13 +74,31 @@ export default function SudokuPage() {
     setSelectedCell(null);
   };
   
-  const clearSelection = () => {
+  const clearSelection = useCallback(() => {
     if(selectedCell) {
         const newBoard = [...board];
         newBoard[selectedCell.row][selectedCell.col] = 0;
         setBoard(newBoard);
     }
-  }
+  }, [selectedCell, board]);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+        if (!selectedCell) return;
+
+        const key = event.key;
+        if (key >= '1' && key <= '9') {
+            handleNumberClick(parseInt(key));
+        } else if (key === 'Backspace' || key === 'Delete') {
+            clearSelection();
+        }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+        window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [selectedCell, handleNumberClick, clearSelection]);
 
   return (
     <main className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
