@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { LogOut, Settings, Swords, Puzzle, Gem, Bot, X, Circle } from "lucide-react";
+import { LogOut, Settings, Swords, Puzzle, Gem, Bot, X, Circle, Brain } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -38,6 +38,11 @@ export default function Home() {
           <Button asChild size="lg" className="text-lg py-8">
             <Link href="/tic-tac-toe">
               <X className="mr-2 h-6 w-6" /> টিক-ট্যাক-টো
+            </Link>
+          </Button>
+          <Button asChild size="lg" className="text-lg py-8">
+            <Link href="/sudoku">
+              <Brain className="mr-2 h-6 w-6" /> সুডোকু
             </Link>
           </Button>
           <Button asChild variant="secondary" size="lg" className="text-lg py-8">
