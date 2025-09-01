@@ -41,8 +41,8 @@ const ShootingGalleryPage = () => {
         const volume = localStorage.getItem('volume');
         if (volume) {
             const vol = Number(volume) / 100;
-            hitSoundRef.current.volume = vol;
-            missSoundRef.current.volume = vol;
+            if (hitSoundRef.current) hitSoundRef.current.volume = vol;
+            if (missSoundRef.current) missSoundRef.current.volume = vol;
         }
       }
   }, []);
@@ -54,7 +54,7 @@ const ShootingGalleryPage = () => {
     setTargets(prevTargets => {
       if (prevTargets.length >= 10) return prevTargets;
       const newTarget: Target = {
-        id: Date.now(),
+        id: Date.now() + Math.random(),
         x: Math.random() * (GAME_WIDTH - 60) + 30,
         y: Math.random() * (GAME_HEIGHT - 60) + 30,
         size: Math.random() * 30 + 30, // size between 30 and 60
@@ -217,4 +217,3 @@ const ShootingGalleryPage = () => {
 };
 
 export default ShootingGalleryPage;
-
