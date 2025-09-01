@@ -102,7 +102,7 @@ export default function SudokuPage() {
 
   return (
     <main className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
-      <div className="w-full max-w-fit">
+      <div className="w-full max-w-4xl">
         <div className="mb-4">
           <Button asChild variant="ghost" className="text-muted-foreground">
             <Link href="/">
@@ -111,45 +111,48 @@ export default function SudokuPage() {
           </Button>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-center text-3xl font-bold flex items-center justify-center gap-2">
-              <Brain /> সুডোকু
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-col md:flex-row items-center md:items-start gap-4 p-4">
-            <div className="grid grid-cols-9 border-collapse">
-              {board.map((row: number[], rowIndex: number) =>
-                row.map((cell: number, colIndex: number) => {
-                  const isInitial = initialPuzzle[rowIndex][colIndex] !== 0;
-                  const isSelected = selectedCell?.row === rowIndex && selectedCell?.col === colIndex;
-                  const isSameValue = selectedCell && board[selectedCell.row][selectedCell.col] !== 0 && cell === board[selectedCell.row][selectedCell.col];
+        <div className="flex flex-col md:flex-row items-center md:items-start justify-center gap-8">
+            <Card>
+            <CardHeader>
+                <CardTitle className="text-center text-3xl font-bold flex items-center justify-center gap-2">
+                <Brain /> সুডোকু
+                </CardTitle>
+            </CardHeader>
+            <CardContent className="p-2 md:p-4">
+                <div className="grid grid-cols-9 border-collapse">
+                {board.map((row: number[], rowIndex: number) =>
+                    row.map((cell: number, colIndex: number) => {
+                    const isInitial = initialPuzzle[rowIndex][colIndex] !== 0;
+                    const isSelected = selectedCell?.row === rowIndex && selectedCell?.col === colIndex;
+                    const isSameValue = selectedCell && board[selectedCell.row][selectedCell.col] !== 0 && cell === board[selectedCell.row][selectedCell.col];
 
-                  return (
-                    <button
-                      key={`${rowIndex}-${colIndex}`}
-                      onClick={() => handleCellClick(rowIndex, colIndex)}
-                      className={cn(
-                        'w-10 h-10 md:w-12 md:h-12 flex items-center justify-center border text-xl md:text-2xl font-bold',
-                        'border-muted-foreground/50',
-                        isInitial ? 'text-foreground' : 'text-primary',
-                        !isInitial && 'cursor-pointer hover:bg-muted/50',
-                        isSelected && 'bg-primary/20 ring-2 ring-primary',
-                        isSameValue && !isInitial && !isSelected && 'bg-primary/10',
-                        (colIndex + 1) % 3 === 0 && colIndex !== 8 && 'border-r-2 border-r-foreground',
-                        (rowIndex + 1) % 3 === 0 && rowIndex !== 8 && 'border-b-2 border-b-foreground',
-                        rowIndex === 0 && 'border-t-2 border-t-foreground',
-                        colIndex === 0 && 'border-l-2 border-l-foreground',
-                      )}
-                    >
-                      {cell !== 0 ? cell : ''}
-                    </button>
-                  );
-                })
-              )}
-            </div>
+                    return (
+                        <button
+                        key={`${rowIndex}-${colIndex}`}
+                        onClick={() => handleCellClick(rowIndex, colIndex)}
+                        className={cn(
+                            'w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 flex items-center justify-center border text-xl md:text-2xl font-bold',
+                            'border-muted-foreground/50',
+                            isInitial ? 'text-foreground' : 'text-primary',
+                            !isInitial && 'cursor-pointer hover:bg-muted/50',
+                            isSelected && 'bg-primary/20 ring-2 ring-primary',
+                            isSameValue && !isInitial && !isSelected && 'bg-primary/10',
+                            (colIndex + 1) % 3 === 0 && colIndex !== 8 && 'border-r-2 border-r-foreground',
+                            (rowIndex + 1) % 3 === 0 && rowIndex !== 8 && 'border-b-2 border-b-foreground',
+                            rowIndex === 0 && 'border-t-2 border-t-foreground',
+                            colIndex === 0 && 'border-l-2 border-l-foreground',
+                        )}
+                        >
+                        {cell !== 0 ? cell : ''}
+                        </button>
+                    );
+                    })
+                )}
+                </div>
+            </CardContent>
+            </Card>
 
-            <div className="flex md:flex-col gap-4">
+            <div className="flex flex-row md:flex-col gap-4 mt-4 md:mt-0">
                 <Button onClick={checkSolution} className="w-full">
                     <CheckCircle className="mr-2 h-4 w-4" /> সমাধান যাচাই
                 </Button>
@@ -158,12 +161,10 @@ export default function SudokuPage() {
                 </Button>
                 <Button onClick={clearSelection} variant="destructive" className="w-full">
                     <XCircle className="mr-2 h-4 w-4" /> মুছুন
-              </Button>
+                </Button>
             </div>
-          </CardContent>
-        </Card>
+        </div>
       </div>
     </main>
   );
 }
-
