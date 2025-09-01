@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { LogOut, Settings, Swords } from "lucide-react";
+import { LogOut, Settings, Swords, Puzzle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -21,7 +21,12 @@ export default function Home() {
         <div className="flex flex-col gap-4 w-full max-w-xs">
           <Button asChild size="lg" className="text-lg py-8">
             <Link href="/hud">
-              <Swords className="mr-2 h-6 w-6" /> খেলা শুরু করুন
+              <Swords className="mr-2 h-6 w-6" /> সাপের গেম
+            </Link>
+          </Button>
+           <Button asChild size="lg" className="text-lg py-8">
+            <Link href="/puzzle">
+              <Puzzle className="mr-2 h-6 w-6" /> পাজল গেম
             </Link>
           </Button>
           <Button asChild variant="secondary" size="lg" className="text-lg py-8">

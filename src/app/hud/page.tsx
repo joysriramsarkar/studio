@@ -7,7 +7,7 @@ import { ArrowLeft, Play, RotateCw, Apple, Trophy } from 'lucide-react';
 import Link from 'next/link';
 
 const GRID_SIZE = 20;
-const BOARD_SIZE = 400;
+const BOARD_SIZE = 600;
 
 const getRandomCoordinate = () => {
   return {
@@ -117,7 +117,7 @@ export default function SnakeGamePage() {
 
   return (
     <main className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
-      <div className="w-full max-w-lg">
+      <div className="w-full max-w-2xl">
          <div className="mb-4 flex justify-between items-center">
           <Button asChild variant="ghost" className="text-muted-foreground">
             <Link href="/">
