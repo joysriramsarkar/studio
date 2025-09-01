@@ -22,8 +22,8 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-const weaponTypes = ['Assault Rifle', 'SMG', 'Sniper Rifle', 'Shotgun', 'LMG', 'Pistol'];
-const playStyles = ['Aggressive', 'Stealthy', 'Long Range', 'Run and Gun', 'Support', 'Defensive'];
+const weaponTypes = ['অ্যাসল্ট রাইফেল', 'এসএমজি', 'স্নাইপার রাইফেল', 'শটগান', 'এলএমজি', 'পিস্তল'];
+const playStyles = ['আগ্রাসী', 'স্টিলথি', 'লং রেঞ্জ', 'রান অ্যান্ড গান', 'সাপোর্ট', 'ডিফেন্সিভ'];
 
 const attachmentIcons: { [key: string]: React.ElementType } = {
   optic: Aperture,
@@ -85,7 +85,7 @@ export default function WeaponCustomizationPage() {
        <div className="mb-4">
         <Button asChild variant="ghost" className="text-muted-foreground">
           <Link href="/hud">
-            <ArrowLeft className="mr-2 h-4 w-4" /> Back to Game
+            <ArrowLeft className="mr-2 h-4 w-4" /> গেমে ফিরে যান
           </Link>
         </Button>
       </div>
@@ -93,8 +93,8 @@ export default function WeaponCustomizationPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <Card className="lg:col-span-1 h-fit">
           <CardHeader>
-            <CardTitle>Weapon Loadout AI</CardTitle>
-            <CardDescription>Get AI-powered attachment suggestions for your play style.</CardDescription>
+            <CardTitle>অস্ত্র লোডআউট এআই</CardTitle>
+            <CardDescription>আপনার খেলার স্টাইলের জন্য AI-চালিত অ্যাটাচমেন্ট সাজেশন পান।</CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...form}>
@@ -104,11 +104,11 @@ export default function WeaponCustomizationPage() {
                   name="weaponType"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Weapon Type</FormLabel>
+                      <FormLabel>অস্ত্রের প্রকার</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select a weapon" />
+                            <SelectValue placeholder="একটি অস্ত্র নির্বাচন করুন" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -129,11 +129,11 @@ export default function WeaponCustomizationPage() {
                   name="playStyle"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Play Style</FormLabel>
+                      <FormLabel>খেলার স্টাইল</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select your style" />
+                            <SelectValue placeholder="আপনার স্টাইল নির্বাচন করুন" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -151,7 +151,7 @@ export default function WeaponCustomizationPage() {
 
                 <Button type="submit" disabled={isLoading} className="w-full">
                   {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Search className="mr-2 h-4 w-4" />}
-                  Generate Suggestions
+                  সাজেশন তৈরি করুন
                 </Button>
               </form>
             </Form>
@@ -177,7 +177,7 @@ export default function WeaponCustomizationPage() {
 
           {!isLoading && suggestions.length > 0 && (
             <div className="space-y-4">
-                <h2 className="text-2xl font-bold">Recommended Loadout</h2>
+                <h2 className="text-2xl font-bold">প্রস্তাবিত লোডআউট</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {suggestions.map((suggestion, index) => {
                     const Icon = getAttachmentIcon(suggestion.attachment);
@@ -202,8 +202,8 @@ export default function WeaponCustomizationPage() {
           {!isLoading && suggestions.length === 0 && (
             <div className="flex flex-col items-center justify-center text-center p-8 border-2 border-dashed rounded-lg h-full">
               <Target className="h-16 w-16 text-muted-foreground mb-4" />
-              <h3 className="text-xl font-semibold">Your suggestions will appear here</h3>
-              <p className="text-muted-foreground">Select your weapon and play style to get started.</p>
+              <h3 className="text-xl font-semibold">আপনার সাজেশন এখানে দেখা যাবে</h3>
+              <p className="text-muted-foreground">শুরু করার জন্য আপনার অস্ত্র এবং খেলার স্টাইল নির্বাচন করুন।</p>
             </div>
           )}
         </div>

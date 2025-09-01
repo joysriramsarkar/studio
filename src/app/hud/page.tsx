@@ -140,7 +140,7 @@ export default function HUDPage() {
       <div className="absolute top-4 left-4 z-10">
         <Button asChild variant="secondary">
           <Link href="/">
-            <ArrowLeft className="mr-2 h-4 w-4" /> Main Menu
+            <ArrowLeft className="mr-2 h-4 w-4" /> প্রধান মেনু
           </Link>
         </Button>
       </div>
@@ -149,7 +149,7 @@ export default function HUDPage() {
        <div className="absolute top-4 right-4 z-10">
         <Button asChild>
           <Link href="/customization">
-            <Target className="mr-2 h-4 w-4" /> Customize Weapon
+            <Target className="mr-2 h-4 w-4" /> অস্ত্র কাস্টমাইজ করুন
           </Link>
         </Button>
       </div>
@@ -159,14 +159,14 @@ export default function HUDPage() {
         <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-black/50">
           <div className="text-center text-white">
             <h2 className="text-4xl font-bold mb-4">
-              {timeLeft === 0 ? "Game Over!" : "Target Practice"}
+              {timeLeft === 0 ? "গেম ওভার!" : "টার্গেট প্র্যাকটিস"}
             </h2>
             {timeLeft === 0 && (
-              <p className="text-2xl mb-4">Your Score: {score}</p>
+              <p className="text-2xl mb-4">আপনার স্কোর: {score}</p>
             )}
             <Button onClick={startGame} size="lg">
               <Play className="mr-2 h-5 w-5" />
-              {timeLeft === 0 ? "Play Again" : "Start Game"}
+              {timeLeft === 0 ? "আবার খেলুন" : "খেলা শুরু করুন"}
             </Button>
           </div>
         </div>
@@ -179,11 +179,11 @@ export default function HUDPage() {
                 <div className="flex items-center gap-3">
                 <Clock className="h-8 w-8 text-primary" />
                 <div className="flex-grow">
-                    <p className="text-xs text-muted-foreground">Time Left</p>
+                    <p className="text-xs text-muted-foreground">বাকি সময়</p>
                     <div className="text-2xl font-bold">{timeLeft}s</div>
                 </div>
                 <div className="text-right">
-                    <p className="text-xs text-muted-foreground">Score</p>
+                    <p className="text-xs text-muted-foreground">স্কোর</p>
                     <div className="text-2xl font-bold">{score}</div>
                 </div>
                 </div>
@@ -194,10 +194,10 @@ export default function HUDPage() {
             <div className="flex items-center gap-3">
               <Heart className="h-8 w-8 text-primary" />
               <div className="flex-grow">
-                <p className="text-xs text-muted-foreground">Health</p>
+                <p className="text-xs text-muted-foreground">স্বাস্থ্য</p>
                 <Progress value={85} className="h-3" />
               </div>
-              <span className="text-xl font-bold">85</span>
+              <span className="text-xl font-bold">৮৫</span>
             </div>
           </CardContent>
         </Card>
@@ -208,10 +208,10 @@ export default function HUDPage() {
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="text-right flex-grow">
-                <p className="text-xs text-muted-foreground">Ammo</p>
+                <p className="text-xs text-muted-foreground">অ্যামো</p>
                 <div className="text-4xl font-black tracking-tighter">
-                  <span className="text-primary">28</span>
-                  <span className="text-2xl text-muted-foreground">/ 120</span>
+                  <span className="text-primary">২৮</span>
+                  <span className="text-2xl text-muted-foreground">/ ১২০</span>
                 </div>
               </div>
               <Crosshair className="h-10 w-10 text-primary" />

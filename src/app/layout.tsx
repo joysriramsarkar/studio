@@ -3,8 +3,8 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 
 export const metadata: Metadata = {
-  title: 'Ironclad',
-  description: 'An immersive, military-themed first-person shooter game interface.',
+  title: 'আয়রনক্ল্যাড',
+  description: 'একটি ইমারসিভ, মিলিটারি-থিমযুক্ত ফার্স্ট-পার্সন শুটার গেম ইন্টারফেস।',
 };
 
 export default function RootLayout({
@@ -13,7 +13,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="bn" className="dark">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

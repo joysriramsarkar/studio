@@ -16,21 +16,21 @@ export default function Home() {
       <div className="absolute inset-0 bg-black/60 z-10" />
       <div className="z-20 flex flex-col items-center gap-8 text-center px-4">
         <h1 className="text-7xl md:text-9xl font-black tracking-tighter uppercase drop-shadow-lg" style={{ WebkitTextStroke: '2px hsl(var(--primary))', color: 'transparent' }}>
-          Ironclad
+          আয়রনক্ল্যাড
         </h1>
         <div className="flex flex-col gap-4 w-full max-w-xs">
           <Button asChild size="lg" className="text-lg py-8">
             <Link href="/hud">
-              <Swords className="mr-2 h-6 w-6" /> Start Game
+              <Swords className="mr-2 h-6 w-6" /> খেলা শুরু করুন
             </Link>
           </Button>
           <Button asChild variant="secondary" size="lg" className="text-lg py-8">
             <Link href="/options">
-              <Settings className="mr-2 h-6 w-6" /> Options
+              <Settings className="mr-2 h-6 w-6" /> অপশনস
             </Link>
           </Button>
           <Button variant="secondary" size="lg" className="text-lg py-8" disabled>
-            <LogOut className="mr-2 h-6 w-6" /> Exit
+            <LogOut className="mr-2 h-6 w-6" /> প্রস্থান
           </Button>
         </div>
       </div>

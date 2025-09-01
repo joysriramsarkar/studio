@@ -6,17 +6,17 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
 const controls = [
-  { action: "Move Forward", key: "W" },
-  { action: "Move Backward", key: "S" },
-  { action: "Strafe Left", key: "A" },
-  { action: "Strafe Right", key: "D" },
-  { action: "Jump", key: "Spacebar" },
-  { action: "Sprint", key: "Shift" },
-  { action: "Fire", key: "Left Mouse" },
-  { action: "Aim Down Sights", key: "Right Mouse" },
-  { action: "Reload", key: "R" },
-  { action: "Switch Weapon", key: "Q" },
-  { action: "Interact", key: "E" },
+  { action: "সামনে এগোন", key: "W" },
+  { action: "পিছনে যান", key: "S" },
+  { action: "বামে যান", key: "A" },
+  { action: "ডানে যান", key: "D" },
+  { action: "লাফ দিন", key: "Spacebar" },
+  { action: "দৌড়ান", key: "Shift" },
+  { action: "গুলি করুন", key: "Left Mouse" },
+  { action: "এইম ডাউন সাইটস", key: "Right Mouse" },
+  { action: "রিলোড", key: "R" },
+  { action: "অস্ত্র পরিবর্তন", key: "Q" },
+  { action: "ইন্টারঅ্যাক্ট", key: "E" },
 ];
 
 function Keybind({ children }: { children: React.ReactNode }) {
@@ -34,29 +34,29 @@ export default function OptionsPage() {
         <div className="mb-4">
           <Button asChild variant="ghost" className="text-muted-foreground">
             <Link href="/">
-              <ArrowLeft className="mr-2 h-4 w-4" /> Back to Main Menu
+              <ArrowLeft className="mr-2 h-4 w-4" /> প্রধান মেনুতে ফিরে যান
             </Link>
           </Button>
         </div>
         <Card className="w-full">
           <CardHeader>
-            <CardTitle className="text-3xl font-bold">Options</CardTitle>
+            <CardTitle className="text-3xl font-bold">অপশনস</CardTitle>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="controls" className="w-full">
               <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="controls">Controls</TabsTrigger>
-                <TabsTrigger value="graphics" disabled>Graphics</TabsTrigger>
-                <TabsTrigger value="audio" disabled>Audio</TabsTrigger>
+                <TabsTrigger value="controls">কন্ট্রোলস</TabsTrigger>
+                <TabsTrigger value="graphics" disabled>গ্রাফিক্স</TabsTrigger>
+                <TabsTrigger value="audio" disabled>অডিও</TabsTrigger>
               </TabsList>
               <TabsContent value="controls" className="pt-6">
-                <h3 className="text-xl font-semibold mb-4">Key Bindings</h3>
+                <h3 className="text-xl font-semibold mb-4">কী বাইন্ডিং</h3>
                 <div className="rounded-lg border">
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Action</TableHead>
-                        <TableHead className="text-right">Key</TableHead>
+                        <TableHead>অ্যাকশন</TableHead>
+                        <TableHead className="text-right">কী</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
