@@ -6,7 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { ArrowLeft, Crosshair, Heart, Target, Play, Clock } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 
 interface TargetProps {
   id: number;
@@ -38,16 +38,31 @@ export default function HUDPage() {
   const [gameActive, setGameActive] = useState(false);
   const [timeLeft, setTimeLeft] = useState(30);
 
+  const backgroundMusicRef = useRef<HTMLAudioElement>(null);
+  const gunshotSoundRef = useRef<HTMLAudioElement>(null);
+
   const startGame = () => {
     setScore(0);
     setTargets([]);
     setHitEffects([]);
     setTimeLeft(30);
     setGameActive(true);
+    backgroundMusicRef.current?.play();
   };
+
+  const stopGame = useCallback(() => {
+    setGameActive(false);
+    setTargets([]);
+    if (backgroundMusicRef.current) {
+      backgroundMusicRef.current.pause();
+      backgroundMusicRef.current.currentTime = 0;
+    }
+  }, []);
 
   const handleTargetClick = (target: TargetProps) => {
     if (!gameActive) return;
+    
+    gunshotSoundRef.current?.play();
     setScore((prevScore) => prevScore + 10);
     setTargets((prevTargets) => prevTargets.filter((t) => t.id !== target.id));
     
@@ -78,8 +93,7 @@ export default function HUDPage() {
           if (prev <= 1) {
             clearInterval(gameTimer);
             if (targetInterval) clearInterval(targetInterval);
-            setGameActive(false);
-            setTargets([]);
+            stopGame();
             return 0;
           }
           return prev - 1;
@@ -95,7 +109,7 @@ export default function HUDPage() {
         clearInterval(targetInterval);
       };
     }
-  }, [gameActive, createTarget]);
+  }, [gameActive, createTarget, stopGame]);
   
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -110,9 +124,10 @@ export default function HUDPage() {
     }
   }, [gameActive]);
 
-
   return (
     <div className="relative w-screen h-screen overflow-hidden">
+      <audio ref={backgroundMusicRef} src="https://cdn.pixabay.com/audio/2022/11/22/audio_1de1bb2c6a.mp3" loop />
+      <audio ref={gunshotSoundRef} src="https://cdn.pixabay.com/audio/2022/01/18/audio_8b22915238.mp3" />
       <Image
         src="https://picsum.photos/1920/1080"
         alt="In-game view"
@@ -142,7 +157,7 @@ export default function HUDPage() {
 
       {/* Back Button */}
       <div className="absolute top-4 left-4 z-20">
-        <Button asChild variant="secondary">
+        <Button asChild variant="secondary" onClick={stopGame}>
           <Link href="/">
             <ArrowLeft className="mr-2 h-4 w-4" /> প্রধান মেনু
           </Link>
@@ -151,7 +166,7 @@ export default function HUDPage() {
       
       {/* Customize Weapon Button */}
        <div className="absolute top-4 right-4 z-20">
-        <Button asChild>
+        <Button asChild onClick={stopGame}>
           <Link href="/customization">
             <Target className="mr-2 h-4 w-4" /> অস্ত্র কাস্টমাইজ করুন
           </Link>
