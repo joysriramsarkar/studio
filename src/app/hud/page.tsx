@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, Crosshair, Heart, Target, Play, Clock } from "lucide-react";
+import { ArrowLeft, Crosshair, Heart, Target, Play, Clock, Minus } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect, useCallback } from "react";
@@ -14,23 +14,49 @@ interface TargetProps {
   y: number;
 }
 
+interface HitEffectProps {
+  id: number;
+  x: number;
+  y: number;
+}
+
+function BulletHole({ x, y }: { x: number, y: number }) {
+  return (
+    <div
+      className="absolute transform -translate-x-1/2 -translate-y-1/2 animate-ping"
+      style={{ left: `${x}%`, top: `${y}%` }}
+    >
+      <div className="w-3 h-3 bg-yellow-400 rounded-full opacity-75"></div>
+    </div>
+  )
+}
+
 export default function HUDPage() {
   const [score, setScore] = useState(0);
   const [targets, setTargets] = useState<TargetProps[]>([]);
+  const [hitEffects, setHitEffects] = useState<HitEffectProps[]>([]);
   const [gameActive, setGameActive] = useState(false);
   const [timeLeft, setTimeLeft] = useState(30);
 
   const startGame = () => {
     setScore(0);
     setTargets([]);
+    setHitEffects([]);
     setTimeLeft(30);
     setGameActive(true);
   };
 
-  const handleTargetClick = (id: number) => {
+  const handleTargetClick = (target: TargetProps) => {
     if (!gameActive) return;
     setScore((prevScore) => prevScore + 10);
-    setTargets((prevTargets) => prevTargets.filter((t) => t.id !== id));
+    setTargets((prevTargets) => prevTargets.filter((t) => t.id !== target.id));
+    
+    const newHit: HitEffectProps = { id: Date.now(), x: target.x, y: target.y };
+    setHitEffects(prev => [...prev, newHit]);
+
+    setTimeout(() => {
+      setHitEffects(prev => prev.filter(h => h.id !== newHit.id));
+    }, 300);
   };
 
   const createTarget = useCallback(() => {
@@ -92,13 +118,19 @@ export default function HUDPage() {
       />
       <div className="absolute inset-0 bg-black/10" />
 
+      {/* Hit Effects */}
+      {hitEffects.map((hit) => (
+         <BulletHole key={hit.id} x={hit.x} y={hit.y} />
+      ))}
+
+
       {/* Targets */}
       {targets.map((target) => (
         <div
           key={target.id}
           className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer"
           style={{ left: `${target.x}%`, top: `${target.y}%` }}
-          onClick={() => handleTargetClick(target.id)}
+          onClick={() => handleTargetClick(target)}
         >
           <Target className="h-10 w-10 text-red-500 animate-pulse" />
         </div>
