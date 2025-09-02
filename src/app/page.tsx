@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { LogOut, Settings, Swords, Puzzle, Gem, Bot, X, Circle, Brain, Crosshair } from "lucide-react";
+import { LogOut, Settings, Swords, Puzzle, Gem, X, Brain } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -16,7 +16,7 @@ export default function Home() {
       />
       <div className="absolute inset-0 bg-background/60 z-10" />
       <div className="z-20 flex flex-col items-center gap-8 text-center px-4">
-        <h1 className="text-7xl md:text-9xl font-black tracking-tighter uppercase drop-shadow-lg" style={{ WebkitTextStroke: '2px hsl(var(--primary))', color: 'transparent' }}>
+        <h1 className="text-7xl md:text-9xl font-headline tracking-tighter uppercase drop-shadow-lg" style={{ WebkitTextStroke: '2px hsl(var(--primary))', color: 'transparent' }}>
           আয়রনক্ল্যাড
         </h1>
         <div className="flex flex-col gap-4 w-full max-w-xs">
