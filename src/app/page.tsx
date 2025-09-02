@@ -8,7 +8,7 @@ export default function Home() {
   return (
     <main className="relative min-h-screen flex flex-col items-center justify-center text-foreground overflow-hidden">
       <Image
-        src="https://picsum.photos/1920/1080"
+        src="https://picsum.photos/id/1015/1920/1080"
         alt="Light abstract background"
         data-ai-hint="light abstract"
         fill
