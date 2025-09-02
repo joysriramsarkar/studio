@@ -3,65 +3,139 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { ArrowLeft, Play, RotateCw, Apple, Trophy } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { ArrowLeft, Play, RotateCw, Apple, Trophy, Pause } from 'lucide-react';
 import Link from 'next/link';
 
-const GRID_SIZE = 20;
+const GRID_SIZE = 30;
 const BOARD_SIZE = 600;
+const CELL_SIZE = BOARD_SIZE / GRID_SIZE;
+const LEVEL_UP_SCORE = 100;
 
-const getRandomCoordinate = () => {
-  return {
-    x: Math.floor(Math.random() * GRID_SIZE),
-    y: Math.floor(Math.random() * GRID_SIZE),
-  };
+const FoodTypes = {
+  APPLE: {
+    emoji: '🍎',
+    points: 10,
+    color: 'text-red-500',
+  },
+  BANANA: {
+    emoji: '🍌',
+    points: 20,
+    color: 'text-yellow-500',
+  },
 };
 
+type FoodType = keyof typeof FoodTypes;
+
+interface Food {
+  x: number;
+  y: number;
+  type: FoodType;
+}
+
+interface Obstacle {
+  x: number;
+  y: number;
+}
+
+const getRandomCoordinate = (exclude: ({ x: number; y: number } | undefined)[] = []) => {
+  let coordinate;
+  do {
+    coordinate = {
+      x: Math.floor(Math.random() * GRID_SIZE),
+      y: Math.floor(Math.random() * GRID_SIZE),
+    };
+  } while (exclude.some(ex => ex && ex.x === coordinate.x && ex.y === coordinate.y));
+  return coordinate;
+};
+
+const generateObstacles = (level: number): Obstacle[] => {
+    if (level <= 1) return [];
+    const obstacles: Obstacle[] = [];
+    const numObstacles = (level - 1) * 4;
+
+    for (let i = 0; i < numObstacles; i++) {
+        obstacles.push(getRandomCoordinate(obstacles));
+    }
+    return obstacles;
+}
+
 export default function SnakeGamePage() {
-  const [snake, setSnake] = useState([{ x: 10, y: 10 }]);
-  const [food, setFood] = useState(getRandomCoordinate());
+  const [snake, setSnake] = useState([{ x: 15, y: 15 }]);
+  const [food, setFood] = useState<Food>(() => ({ ...getRandomCoordinate(), type: 'APPLE' }));
+  const [obstacles, setObstacles] = useState<Obstacle[]>([]);
   const [direction, setDirection] = useState<'UP' | 'DOWN' | 'LEFT' | 'RIGHT'>('RIGHT');
-  const [speed, setSpeed] = useState<number | null>(null);
-  const [gameOver, setGameOver] = useState(false);
+  const [speed, setSpeed] = useState<number | null>(200);
+  const [isPaused, setIsPaused] = useState(false);
+  const [gameOver, setGameOver] = useState(true);
   const [score, setScore] = useState(0);
+  const [highScore, setHighScore] = useState(0);
+  const [level, setLevel] = useState(1);
 
   const eatSoundRef = useRef<HTMLAudioElement>(null);
   const gameOverSoundRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
+        const storedHighScore = localStorage.getItem('snakeHighScore');
+        if (storedHighScore) {
+            setHighScore(parseInt(storedHighScore, 10));
+        }
+
         eatSoundRef.current = new Audio('/eat.mp3');
         gameOverSoundRef.current = new Audio('/game-over.mp3');
 
         const volume = localStorage.getItem('volume');
         if (volume) {
             const vol = Number(volume) / 100;
-            eatSoundRef.current.volume = vol;
-            gameOverSoundRef.current.volume = vol;
+            if(eatSoundRef.current) eatSoundRef.current.volume = vol;
+            if(gameOverSoundRef.current) gameOverSoundRef.current.volume = vol;
         }
     }
   }, []);
 
-  const playEatSound = () => {
-    eatSoundRef.current?.play().catch(e => console.error("Error playing eat sound:", e));
+  const playSound = (sound: 'eat' | 'gameOver') => {
+    const ref = sound === 'eat' ? eatSoundRef : gameOverSoundRef;
+    ref.current?.play().catch(e => console.error(`Error playing ${sound} sound:`, e));
   };
 
-  const playGameOverSound = () => {
-    gameOverSoundRef.current?.play().catch(e => console.error("Error playing game over sound:", e));
-  };
-
+  const handleGameOver = useCallback(() => {
+    playSound('gameOver');
+    setSpeed(null);
+    setGameOver(true);
+    if (score > highScore) {
+        setHighScore(score);
+        localStorage.setItem('snakeHighScore', score.toString());
+    }
+  }, [score, highScore]);
 
   const startGame = () => {
-    setSnake([{ x: 10, y: 10 }]);
-    setFood(getRandomCoordinate());
+    setSnake([{ x: 15, y: 15 }]);
     setDirection('RIGHT');
     setSpeed(200);
     setGameOver(false);
+    setIsPaused(false);
     setScore(0);
+    setLevel(1);
+    setObstacles([]);
+    setFood({ ...getRandomCoordinate(), type: 'APPLE' });
   };
 
+  const spawnFood = (currentSnake: {x:number, y:number}[]) => {
+      const type: FoodType = Math.random() > 0.7 ? 'BANANA' : 'APPLE';
+      let newFoodPosition;
+      do {
+          newFoodPosition = getRandomCoordinate([...currentSnake, ...obstacles]);
+      } while (
+          currentSnake.some(seg => seg.x === newFoodPosition.x && seg.y === newFoodPosition.y) ||
+          obstacles.some(obs => obs.x === newFoodPosition.x && obs.y === newFoodPosition.y)
+      );
+      setFood({ ...newFoodPosition, type });
+  }
+
   const moveSnake = useCallback(() => {
-    if (gameOver) return;
+    if (gameOver || isPaused) return;
 
     setSnake((prevSnake) => {
       const newSnake = [...prevSnake];
@@ -74,149 +148,199 @@ export default function SnakeGamePage() {
         case 'RIGHT': head.x += 1; break;
       }
 
-      // Wall collision
-      if (head.x < 0 || head.x >= GRID_SIZE || head.y < 0 || head.y >= GRID_SIZE) {
-        setGameOver(true);
-        setSpeed(null);
-        playGameOverSound();
+      if (
+        head.x < 0 || head.x >= GRID_SIZE || head.y < 0 || head.y >= GRID_SIZE ||
+        newSnake.some(segment => segment.x === head.x && segment.y === head.y) ||
+        obstacles.some(obs => obs.x === head.x && obs.y === head.y)
+      ) {
+        handleGameOver();
         return prevSnake;
-      }
-
-      // Self collision
-      for (const segment of newSnake) {
-        if (segment.x === head.x && segment.y === head.y) {
-          setGameOver(true);
-          setSpeed(null);
-          playGameOverSound();
-          return prevSnake;
-        }
       }
 
       newSnake.unshift(head);
 
-      // Food collision
       if (head.x === food.x && head.y === food.y) {
-        setScore((s) => s + 10);
-        playEatSound();
-        let newFoodPosition;
-        let isFoodOnSnake;
-        do {
-            isFoodOnSnake = false;
-            newFoodPosition = getRandomCoordinate();
-            for (const segment of newSnake) {
-                if (segment.x === newFoodPosition.x && segment.y === newFoodPosition.y) {
-                    isFoodOnSnake = true;
-                    break;
-                }
-            }
-        } while (isFoodOnSnake);
-
-        setFood(newFoodPosition);
+        const foodType = FoodTypes[food.type];
+        const newScore = score + foodType.points;
+        setScore(newScore);
         
-        // Increase speed
-        setSpeed(s => Math.max(50, (s || 200) * 0.95));
+        const newLevel = Math.floor(newScore / LEVEL_UP_SCORE) + 1;
+        if (newLevel > level) {
+            setLevel(newLevel);
+            setObstacles(generateObstacles(newLevel));
+            setSpeed(s => Math.max(50, (s || 200) * 0.9));
+        }
 
+        playSound('eat');
+        spawnFood(newSnake);
       } else {
         newSnake.pop();
       }
 
       return newSnake;
     });
-  }, [direction, food, gameOver]);
+  }, [direction, food, gameOver, isPaused, obstacles, score, level, handleGameOver]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      switch (e.key) {
-        case 'ArrowUp': if (direction !== 'DOWN') setDirection('UP'); break;
-        case 'ArrowDown': if (direction !== 'UP') setDirection('DOWN'); break;
-        case 'ArrowLeft': if (direction !== 'RIGHT') setDirection('LEFT'); break;
-        case 'ArrowRight': if (direction !== 'LEFT') setDirection('RIGHT'); break;
-      }
+        if (gameOver) return;
+        
+        if (e.key === ' ' || e.key === 'Spacebar') {
+            e.preventDefault();
+            setIsPaused(p => !p);
+            return;
+        }
+
+        if (isPaused) return;
+
+        switch (e.key) {
+            case 'ArrowUp': case 'w': if (direction !== 'DOWN') setDirection('UP'); break;
+            case 'ArrowDown': case 's': if (direction !== 'UP') setDirection('DOWN'); break;
+            case 'ArrowLeft': case 'a': if (direction !== 'RIGHT') setDirection('LEFT'); break;
+            case 'ArrowRight': case 'd': if (direction !== 'LEFT') setDirection('RIGHT'); break;
+        }
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [direction]);
+  }, [direction, gameOver, isPaused]);
 
   useEffect(() => {
-    if (speed !== null && !gameOver) {
+    if (speed !== null && !gameOver && !isPaused) {
       const gameInterval = setInterval(moveSnake, speed);
       return () => clearInterval(gameInterval);
     }
-  }, [snake, speed, gameOver, moveSnake]);
+  }, [snake, speed, gameOver, isPaused, moveSnake]);
 
   return (
     <main className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
-      <div className="w-full max-w-2xl">
-         <div className="mb-4 flex justify-between items-center">
+      <div className="w-full max-w-5xl">
+         <div className="mb-4">
           <Button asChild variant="ghost" className="text-muted-foreground">
             <Link href="/">
               <ArrowLeft className="mr-2 h-4 w-4" /> প্রধান মেনু
             </Link>
           </Button>
-          <Card className="bg-card/80 backdrop-blur-sm">
-            <CardContent className="p-3">
-                <div className="flex items-center gap-3">
-                    <Trophy className="h-6 w-6 text-primary" />
-                    <div>
-                        <p className="text-xs text-muted-foreground">স্কোর</p>
-                        <div className="text-xl font-bold">{score}</div>
-                    </div>
-                </div>
-            </CardContent>
-          </Card>
         </div>
         
-        <Card>
-            <CardContent className="p-4 flex items-center justify-center relative">
-                <div
-                    className="relative bg-muted/20 border-2 border-primary/20"
-                    style={{ width: BOARD_SIZE, height: BOARD_SIZE }}
-                >
-                    {snake.map((segment, index) => (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <Card className="lg:col-span-2">
+                <CardContent className="p-2 flex items-center justify-center relative">
                     <div
-                        key={index}
-                        className={`absolute ${index === 0 ? 'bg-primary' : 'bg-primary/70'} rounded-sm`}
-                        style={{
-                        left: segment.x * (BOARD_SIZE / GRID_SIZE),
-                        top: segment.y * (BOARD_SIZE / GRID_SIZE),
-                        width: BOARD_SIZE / GRID_SIZE,
-                        height: BOARD_SIZE / GRID_SIZE,
-                        }}
-                    />
-                    ))}
-                    <div
-                        className="absolute text-2xl"
-                        style={{
-                            left: food.x * (BOARD_SIZE / GRID_SIZE),
-                            top: food.y * (BOARD_SIZE / GRID_SIZE),
-                        }}
-                        >
-                        <Apple className="h-5 w-5 text-red-500" />
-                    </div>
-
-                    {speed === null && (
-                        <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-black/70">
-                            <div className="text-center text-white">
-                                <h2 className="text-4xl font-bold mb-4">
-                                {gameOver ? "গেম ওভার!" : "সাপের গেম"}
-                                </h2>
-                                {gameOver && (
-                                <p className="text-2xl mb-4">আপনার স্কোর: {score}</p>
-                                )}
-                                <Button onClick={startGame} size="lg">
-                                    {gameOver ? <RotateCw className="mr-2 h-5 w-5" /> : <Play className="mr-2 h-5 w-5" />}
-                                    {gameOver ? "আবার খেলুন" : "খেলা শুরু করুন"}
-                                </Button>
-                            </div>
+                        className="relative bg-muted/20 border-2 border-primary/20"
+                        style={{ width: BOARD_SIZE, height: BOARD_SIZE }}
+                    >
+                        {snake.map((segment, index) => (
+                        <div
+                            key={index}
+                            className={`absolute ${index === 0 ? 'bg-primary' : 'bg-primary/70'} rounded-sm`}
+                            style={{
+                                left: segment.x * CELL_SIZE,
+                                top: segment.y * CELL_SIZE,
+                                width: CELL_SIZE,
+                                height: CELL_SIZE,
+                            }}
+                        />
+                        ))}
+                        <div
+                            className="absolute text-xl flex items-center justify-center"
+                            style={{
+                                left: food.x * CELL_SIZE,
+                                top: food.y * CELL_SIZE,
+                                width: CELL_SIZE,
+                                height: CELL_SIZE,
+                            }}
+                            >
+                            {FoodTypes[food.type].emoji}
                         </div>
-                    )}
-                </div>
-            </CardContent>
-        </Card>
-        <p className="text-center text-muted-foreground mt-4">
-            সরানোর জন্য অ্যারো কী ব্যবহার করুন।
-        </p>
+                        {obstacles.map((obs, index) => (
+                            <div
+                                key={index}
+                                className="absolute bg-foreground/50 rounded-sm"
+                                style={{
+                                    left: obs.x * CELL_SIZE,
+                                    top: obs.y * CELL_SIZE,
+                                    width: CELL_SIZE,
+                                    height: CELL_SIZE,
+                                }}
+                            />
+                        ))}
+
+                        {(gameOver || isPaused) && (
+                            <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-black/70">
+                                <div className="text-center text-white">
+                                    <h2 className="text-4xl font-bold mb-4">
+                                    {gameOver ? "গেম ওভার!" : "পজড"}
+                                    </h2>
+                                    {gameOver && (
+                                    <p className="text-2xl mb-4">আপনার স্কোর: {score}</p>
+                                    )}
+                                    <Button onClick={gameOver ? startGame : () => setIsPaused(false)} size="lg">
+                                        {gameOver ? <RotateCw className="mr-2 h-5 w-5" /> : <Play className="mr-2 h-5 w-5" />}
+                                        {gameOver ? "আবার খেলুন" : "চালিয়ে যান"}
+                                    </Button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </CardContent>
+            </Card>
+
+            <div className="lg:col-span-1 space-y-6">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>খেলার পরিসংখ্যান</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="flex justify-between items-center">
+                            <span className="text-muted-foreground">স্কোর</span>
+                            <span className="font-bold text-lg">{score}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                            <span className="text-muted-foreground">সর্বোচ্চ স্কোর</span>
+                            <span className="font-bold text-lg">{highScore}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                            <span className="text-muted-foreground">লেভেল</span>
+                            <span className="font-bold text-lg">{level}</span>
+                        </div>
+                         <div className="flex justify-between items-center">
+                            <span className="text-muted-foreground">গতি</span>
+                            <span className="font-bold text-lg">{speed ? (200 / speed * 10).toFixed(1) : 0}</span>
+                        </div>
+                        <div>
+                             <span className="text-muted-foreground text-sm">লেভেল আপ: {LEVEL_UP_SCORE - (score % LEVEL_UP_SCORE)} পয়েন্ট বাকি</span>
+                             <Progress value={(score % LEVEL_UP_SCORE) / LEVEL_UP_SCORE * 100} className="mt-1" />
+                        </div>
+                    </CardContent>
+                </Card>
+                 <Card>
+                    <CardHeader>
+                        <CardTitle>নিয়ন্ত্রণ</CardTitle>
+                    </CardHeader>
+                    <CardContent className="text-sm text-muted-foreground space-y-1">
+                        <p><span className="font-mono bg-muted p-1 rounded">↑ W</span> - উপরে যান</p>
+                        <p><span className="font-mono bg-muted p-1 rounded">↓ S</span> - নিচে যান</p>
+                        <p><span className="font-mono bg-muted p-1 rounded">← A</span> - বামে যান</p>
+                        <p><span className="font-mono bg-muted p-1 rounded">→ D</span> - ডানে যান</p>
+                        <p><span className="font-mono bg-muted p-1 rounded">Space</span> - পজ/চালু</p>
+                    </CardContent>
+                </Card>
+                 <Card>
+                    <CardHeader>
+                        <CardTitle>ফলের পয়েন্ট</CardTitle>
+                    </CardHeader>
+                    <CardContent className="text-sm space-y-2">
+                       {Object.values(FoodTypes).map(ft => (
+                           <div key={ft.emoji} className="flex items-center gap-2">
+                               <span className="text-2xl">{ft.emoji}</span>
+                               <span className="text-muted-foreground">{ft.points} পয়েন্ট</span>
+                           </div>
+                       ))}
+                    </CardContent>
+                </Card>
+            </div>
+        </div>
       </div>
     </main>
   );
