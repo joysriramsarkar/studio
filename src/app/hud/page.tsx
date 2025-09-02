@@ -214,8 +214,8 @@ export default function SnakeGamePage() {
 
   return (
     <main className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
-      <div className="w-full max-w-5xl">
-         <div className="mb-4">
+      <div className="w-full max-w-6xl">
+         <div className="mb-2">
           <Button asChild variant="ghost" className="text-muted-foreground">
             <Link href="/">
               <ArrowLeft className="mr-2 h-4 w-4" /> প্রধান মেনু
@@ -223,102 +223,112 @@ export default function SnakeGamePage() {
           </Button>
         </div>
         
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <Card className="lg:col-span-2">
-                <CardContent className="p-2 flex items-center justify-center relative">
-                    <div
-                        className="relative bg-muted/20 border-2 border-primary/20"
-                        style={{ width: BOARD_SIZE, height: BOARD_SIZE }}
-                    >
-                        {snake.map((segment, index) => (
+        <div className="flex flex-col lg:flex-row gap-8">
+            <div className="flex-grow flex items-center justify-center">
+                <Card className="shadow-2xl">
+                    <CardContent className="p-1 sm:p-2">
                         <div
-                            key={index}
-                            className={`absolute ${index === 0 ? 'bg-primary' : 'bg-primary/70'} rounded-sm`}
-                            style={{
-                                left: segment.x * CELL_SIZE,
-                                top: segment.y * CELL_SIZE,
-                                width: CELL_SIZE,
-                                height: CELL_SIZE,
-                            }}
-                        />
-                        ))}
-                        <div
-                            className="absolute text-xl flex items-center justify-center"
-                            style={{
-                                left: food.x * CELL_SIZE,
-                                top: food.y * CELL_SIZE,
-                                width: CELL_SIZE,
-                                height: CELL_SIZE,
-                            }}
-                            >
-                            {FoodTypes[food.type].emoji}
-                        </div>
-                        {obstacles.map((obs, index) => (
-                            <div
-                                key={index}
-                                className="absolute bg-foreground/50 rounded-sm"
+                            className="relative bg-muted/20 border-2 border-primary/20 aspect-square"
+                            style={{ width: '100%', maxWidth: BOARD_SIZE, maxHeight: BOARD_SIZE }}
+                        >
+                             <div
+                                className="absolute inset-0 grid-cols-30 grid-rows-30"
                                 style={{
-                                    left: obs.x * CELL_SIZE,
-                                    top: obs.y * CELL_SIZE,
-                                    width: CELL_SIZE,
-                                    height: CELL_SIZE,
+                                    backgroundSize: `${CELL_SIZE}px ${CELL_SIZE}px`,
+                                    backgroundImage: 'linear-gradient(to right, hsl(var(--border)) 1px, transparent 1px), linear-gradient(to bottom, hsl(var(--border)) 1px, transparent 1px)',
+                                    opacity: 0.1
                                 }}
                             />
-                        ))}
-
-                        {(gameOver || isPaused) && (
-                            <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-black/70">
-                                <div className="text-center text-white">
-                                    <h2 className="text-4xl font-bold mb-4">
-                                    {gameOver ? "গেম ওভার!" : "পজড"}
-                                    </h2>
-                                    {gameOver && (
-                                    <p className="text-2xl mb-4">আপনার স্কোর: {score}</p>
-                                    )}
-                                    <Button onClick={gameOver ? startGame : () => setIsPaused(false)} size="lg">
-                                        {gameOver ? <RotateCw className="mr-2 h-5 w-5" /> : <Play className="mr-2 h-5 w-5" />}
-                                        {gameOver ? "আবার খেলুন" : "চালিয়ে যান"}
-                                    </Button>
-                                </div>
+                            {snake.map((segment, index) => (
+                            <div
+                                key={index}
+                                className={`absolute ${index === 0 ? 'bg-primary' : 'bg-primary/70'} rounded-sm`}
+                                style={{
+                                    left: `${segment.x / GRID_SIZE * 100}%`,
+                                    top: `${segment.y / GRID_SIZE * 100}%`,
+                                    width: `${100 / GRID_SIZE}%`,
+                                    height: `${100 / GRID_SIZE}%`,
+                                }}
+                            />
+                            ))}
+                            <div
+                                className="absolute text-xl flex items-center justify-center"
+                                style={{
+                                    left: `${food.x / GRID_SIZE * 100}%`,
+                                    top: `${food.y / GRID_SIZE * 100}%`,
+                                    width: `${100 / GRID_SIZE}%`,
+                                    height: `${100 / GRID_SIZE}%`,
+                                }}
+                                >
+                                {FoodTypes[food.type].emoji}
                             </div>
-                        )}
-                    </div>
-                </CardContent>
-            </Card>
+                            {obstacles.map((obs, index) => (
+                                <div
+                                    key={index}
+                                    className="absolute bg-foreground/50 rounded-sm"
+                                    style={{
+                                        left: `${obs.x / GRID_SIZE * 100}%`,
+                                        top: `${obs.y / GRID_SIZE * 100}%`,
+                                        width: `${100 / GRID_SIZE}%`,
+                                        height: `${100 / GRID_SIZE}%`,
+                                    }}
+                                />
+                            ))}
 
-            <div className="lg:col-span-1 space-y-6">
+                            {(gameOver || isPaused) && (
+                                <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-black/70">
+                                    <div className="text-center text-white">
+                                        <h2 className="text-4xl font-bold mb-4">
+                                        {gameOver ? "গেম ওভার!" : "পজড"}
+                                        </h2>
+                                        {gameOver && (
+                                        <p className="text-2xl mb-4">আপনার স্কোর: {score}</p>
+                                        )}
+                                        <Button onClick={gameOver ? startGame : () => setIsPaused(false)} size="lg">
+                                            {gameOver ? <RotateCw className="mr-2 h-5 w-5" /> : <Play className="mr-2 h-5 w-5" />}
+                                            {gameOver ? "আবার খেলুন" : "চালিয়ে যান"}
+                                        </Button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+
+            <div className="lg:w-[280px] shrink-0 space-y-4">
                 <Card>
-                    <CardHeader>
-                        <CardTitle>খেলার পরিসংখ্যান</CardTitle>
+                    <CardHeader className="p-4">
+                        <CardTitle className="text-lg">খেলার পরিসংখ্যান</CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-4">
+                    <CardContent className="p-4 pt-0 space-y-3 text-sm">
                         <div className="flex justify-between items-center">
                             <span className="text-muted-foreground">স্কোর</span>
-                            <span className="font-bold text-lg">{score}</span>
+                            <span className="font-bold">{score}</span>
                         </div>
                         <div className="flex justify-between items-center">
                             <span className="text-muted-foreground">সর্বোচ্চ স্কোর</span>
-                            <span className="font-bold text-lg">{highScore}</span>
+                            <span className="font-bold">{highScore}</span>
                         </div>
                         <div className="flex justify-between items-center">
                             <span className="text-muted-foreground">লেভেল</span>
-                            <span className="font-bold text-lg">{level}</span>
+                            <span className="font-bold">{level}</span>
                         </div>
                          <div className="flex justify-between items-center">
                             <span className="text-muted-foreground">গতি</span>
-                            <span className="font-bold text-lg">{speed ? (200 / speed * 10).toFixed(1) : 0}</span>
+                            <span className="font-bold">{speed ? (200 / speed * 10).toFixed(1) : 0}</span>
                         </div>
                         <div>
-                             <span className="text-muted-foreground text-sm">লেভেল আপ: {LEVEL_UP_SCORE - (score % LEVEL_UP_SCORE)} পয়েন্ট বাকি</span>
-                             <Progress value={(score % LEVEL_UP_SCORE) / LEVEL_UP_SCORE * 100} className="mt-1" />
+                             <span className="text-muted-foreground text-xs">লেভেল আপ: {LEVEL_UP_SCORE - (score % LEVEL_UP_SCORE)} পয়েন্ট বাকি</span>
+                             <Progress value={(score % LEVEL_UP_SCORE) / LEVEL_UP_SCORE * 100} className="mt-1 h-2" />
                         </div>
                     </CardContent>
                 </Card>
                  <Card>
-                    <CardHeader>
-                        <CardTitle>নিয়ন্ত্রণ</CardTitle>
+                    <CardHeader className="p-4">
+                        <CardTitle className="text-lg">নিয়ন্ত্রণ</CardTitle>
                     </CardHeader>
-                    <CardContent className="text-sm text-muted-foreground space-y-1">
+                    <CardContent className="p-4 pt-0 text-xs text-muted-foreground space-y-1">
                         <p><span className="font-mono bg-muted p-1 rounded">↑ W</span> - উপরে যান</p>
                         <p><span className="font-mono bg-muted p-1 rounded">↓ S</span> - নিচে যান</p>
                         <p><span className="font-mono bg-muted p-1 rounded">← A</span> - বামে যান</p>
@@ -327,13 +337,13 @@ export default function SnakeGamePage() {
                     </CardContent>
                 </Card>
                  <Card>
-                    <CardHeader>
-                        <CardTitle>ফলের পয়েন্ট</CardTitle>
+                    <CardHeader className="p-4">
+                        <CardTitle className="text-lg">ফলের পয়েন্ট</CardTitle>
                     </CardHeader>
-                    <CardContent className="text-sm space-y-2">
+                    <CardContent className="p-4 pt-0 text-xs space-y-2">
                        {Object.values(FoodTypes).map(ft => (
                            <div key={ft.emoji} className="flex items-center gap-2">
-                               <span className="text-2xl">{ft.emoji}</span>
+                               <span className="text-xl">{ft.emoji}</span>
                                <span className="text-muted-foreground">{ft.points} পয়েন্ট</span>
                            </div>
                        ))}
