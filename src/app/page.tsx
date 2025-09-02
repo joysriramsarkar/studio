@@ -46,8 +46,8 @@ export default function Home() {
             </Link>
           </Button>
           <Button asChild size="lg" className="text-lg py-8">
-            <Link href="/slingshot">
-              <Crosshair className="mr-2 h-6 w-6" /> স্লিংশট
+            <Link href="/customization">
+              <Bot className="mr-2 h-6 w-6" /> অস্ত্র কাস্টমাইজেশন
             </Link>
           </Button>
           <Button asChild variant="secondary" size="lg" className="text-lg py-8">
