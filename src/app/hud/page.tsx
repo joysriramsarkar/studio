@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { ArrowLeft, Play, RotateCw, Apple, Trophy, Pause } from 'lucide-react';
+import { ArrowLeft, Play, RotateCw, Pause } from 'lucide-react';
 import Link from 'next/link';
 
 const GRID_SIZE = 30;
@@ -232,7 +232,7 @@ export default function SnakeGamePage() {
                             style={{ width: '100%', maxWidth: BOARD_SIZE, maxHeight: BOARD_SIZE }}
                         >
                              <div
-                                className="absolute inset-0 grid-cols-30 grid-rows-30"
+                                className="absolute inset-0 grid grid-cols-30 grid-rows-30"
                                 style={{
                                     backgroundSize: `${CELL_SIZE}px ${CELL_SIZE}px`,
                                     backgroundImage: 'linear-gradient(to right, hsl(var(--border)) 1px, transparent 1px), linear-gradient(to bottom, hsl(var(--border)) 1px, transparent 1px)',
