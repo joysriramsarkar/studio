@@ -214,8 +214,8 @@ export default function SnakeGamePage() {
 
   return (
     <main className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
-      <div className="w-full max-w-6xl">
-         <div className="mb-2">
+      <div className="w-full max-w-6xl mx-auto">
+        <div className="mb-2">
           <Button asChild variant="ghost" className="text-muted-foreground">
             <Link href="/">
               <ArrowLeft className="mr-2 h-4 w-4" /> প্রধান মেনু
@@ -223,134 +223,131 @@ export default function SnakeGamePage() {
           </Button>
         </div>
         
-        <div className="flex flex-col lg:flex-row gap-8">
-            <div className="flex-grow flex items-center justify-center">
-                <Card className="shadow-2xl aspect-square w-full max-w-[600px] lg:max-w-none">
-                    <CardContent className="p-1 sm:p-2 h-full">
-                        <div
-                            className="relative bg-muted/20 border-2 border-primary/20 h-full w-full"
-                        >
-                             <div
-                                className="absolute inset-0"
-                                style={{
-                                    gridTemplateColumns: `repeat(${GRID_SIZE}, 1fr)`,
-                                    gridTemplateRows: `repeat(${GRID_SIZE}, 1fr)`,
-                                    backgroundSize: `${CELL_SIZE}px ${CELL_SIZE}px`,
-                                    backgroundImage: 'linear-gradient(to right, hsl(var(--border)) 1px, transparent 1px), linear-gradient(to bottom, hsl(var(--border)) 1px, transparent 1px)',
-                                    opacity: 0.1
-                                }}
-                            />
-                            {snake.map((segment, index) => (
-                            <div
-                                key={index}
-                                className={`absolute ${index === 0 ? 'bg-primary' : 'bg-primary/70'} rounded-sm`}
-                                style={{
-                                    left: `${segment.x * (100 / GRID_SIZE)}%`,
-                                    top: `${segment.y * (100 / GRID_SIZE)}%`,
-                                    width: `${100 / GRID_SIZE}%`,
-                                    height: `${100 / GRID_SIZE}%`,
-                                }}
-                            />
-                            ))}
-                            <div
-                                className="absolute text-xl flex items-center justify-center"
-                                style={{
-                                    left: `${food.x * (100 / GRID_SIZE)}%`,
-                                    top: `${food.y * (100 / GRID_SIZE)}%`,
-                                    width: `${100 / GRID_SIZE}%`,
-                                    height: `${100 / GRID_SIZE}%`,
-                                }}
-                                >
-                                {FoodTypes[food.type].emoji}
-                            </div>
-                            {obstacles.map((obs, index) => (
-                                <div
-                                    key={index}
-                                    className="absolute bg-foreground/50 rounded-sm"
-                                    style={{
-                                        left: `${obs.x * (100 / GRID_SIZE)}%`,
-                                        top: `${obs.y * (100 / GRID_SIZE)}%`,
-                                        width: `${100 / GRID_SIZE}%`,
-                                        height: `${100 / GRID_SIZE}%`,
-                                    }}
-                                />
-                            ))}
+        <div className="flex flex-col md:flex-row gap-8 items-start">
+          <div className="flex-grow">
+            <Card className="shadow-2xl aspect-square w-full max-w-[600px] mx-auto md:mx-0">
+              <CardContent className="p-1 sm:p-2 h-full">
+                <div className="relative bg-muted/20 border-2 border-primary/20 h-full w-full">
+                  <div
+                    className="absolute inset-0"
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: `repeat(${GRID_SIZE}, 1fr)`,
+                      gridTemplateRows: `repeat(${GRID_SIZE}, 1fr)`,
+                      backgroundSize: `${CELL_SIZE}px ${CELL_SIZE}px`,
+                      backgroundImage: 'linear-gradient(to right, hsl(var(--border)) 1px, transparent 1px), linear-gradient(to bottom, hsl(var(--border)) 1px, transparent 1px)',
+                      opacity: 0.1
+                    }}
+                  />
+                  {snake.map((segment, index) => (
+                    <div
+                      key={index}
+                      className={`absolute ${index === 0 ? 'bg-primary' : 'bg-primary/70'} rounded-sm`}
+                      style={{
+                        left: `${segment.x * (100 / GRID_SIZE)}%`,
+                        top: `${segment.y * (100 / GRID_SIZE)}%`,
+                        width: `${100 / GRID_SIZE}%`,
+                        height: `${100 / GRID_SIZE}%`,
+                        transition: 'left 0.1s linear, top 0.1s linear',
+                      }}
+                    />
+                  ))}
+                  <div
+                    className="absolute text-xl flex items-center justify-center"
+                    style={{
+                      left: `${food.x * (100 / GRID_SIZE)}%`,
+                      top: `${food.y * (100 / GRID_SIZE)}%`,
+                      width: `${100 / GRID_SIZE}%`,
+                      height: `${100 / GRID_SIZE}%`,
+                    }}
+                  >
+                    {FoodTypes[food.type].emoji}
+                  </div>
+                  {obstacles.map((obs, index) => (
+                    <div
+                      key={index}
+                      className="absolute bg-foreground/50 rounded-sm"
+                      style={{
+                        left: `${obs.x * (100 / GRID_SIZE)}%`,
+                        top: `${obs.y * (100 / GRID_SIZE)}%`,
+                        width: `${100 / GRID_SIZE}%`,
+                        height: `${100 / GRID_SIZE}%`,
+                      }}
+                    />
+                  ))}
+                  {(gameOver || isPaused) && (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-black/70">
+                      <div className="text-center text-white">
+                        <h2 className="text-4xl font-bold mb-4">
+                          {gameOver ? "গেম ওভার!" : "পজড"}
+                        </h2>
+                        {gameOver && <p className="text-2xl mb-4">আপনার স্কোর: {score}</p>}
+                        <Button onClick={gameOver ? startGame : () => setIsPaused(false)} size="lg">
+                          {gameOver ? <RotateCw className="mr-2 h-5 w-5" /> : <Play className="mr-2 h-5 w-5" />}
+                          {gameOver ? "আবার খেলুন" : "চালিয়ে যান"}
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
 
-                            {(gameOver || isPaused) && (
-                                <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-black/70">
-                                    <div className="text-center text-white">
-                                        <h2 className="text-4xl font-bold mb-4">
-                                        {gameOver ? "গেম ওভার!" : "পজড"}
-                                        </h2>
-                                        {gameOver && (
-                                        <p className="text-2xl mb-4">আপনার স্কোর: {score}</p>
-                                        )}
-                                        <Button onClick={gameOver ? startGame : () => setIsPaused(false)} size="lg">
-                                            {gameOver ? <RotateCw className="mr-2 h-5 w-5" /> : <Play className="mr-2 h-5 w-5" />}
-                                            {gameOver ? "আবার খেলুন" : "চালিয়ে যান"}
-                                        </Button>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
-
-            <div className="lg:w-[280px] shrink-0 space-y-4">
-                <Card>
-                    <CardHeader className="p-4">
-                        <CardTitle className="text-lg">খেলার পরিসংখ্যান</CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-4 pt-0 space-y-3 text-sm">
-                        <div className="flex justify-between items-center">
-                            <span className="text-muted-foreground">স্কোর</span>
-                            <span className="font-bold">{score}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                            <span className="text-muted-foreground">সর্বোচ্চ স্কোর</span>
-                            <span className="font-bold">{highScore}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                            <span className="text-muted-foreground">লেভেল</span>
-                            <span className="font-bold">{level}</span>
-                        </div>
-                         <div className="flex justify-between items-center">
-                            <span className="text-muted-foreground">গতি</span>
-                            <span className="font-bold">{speed ? (200 / speed * 10).toFixed(1) : 0}</span>
-                        </div>
-                        <div>
-                             <span className="text-muted-foreground text-xs">লেভেল আপ: {LEVEL_UP_SCORE - (score % LEVEL_UP_SCORE)} পয়েন্ট বাকি</span>
-                             <Progress value={(score % LEVEL_UP_SCORE) / LEVEL_UP_SCORE * 100} className="mt-1 h-2" />
-                        </div>
-                    </CardContent>
-                </Card>
-                 <Card>
-                    <CardHeader className="p-4">
-                        <CardTitle className="text-lg">নিয়ন্ত্রণ</CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-4 pt-0 text-xs text-muted-foreground space-y-1">
-                        <p><span className="font-mono bg-muted p-1 rounded">↑ W</span> - উপরে যান</p>
-                        <p><span className="font-mono bg-muted p-1 rounded">↓ S</span> - নিচে যান</p>
-                        <p><span className="font-mono bg-muted p-1 rounded">← A</span> - বামে যান</p>
-                        <p><span className="font-mono bg-muted p-1 rounded">→ D</span> - ডানে যান</p>
-                        <p><span className="font-mono bg-muted p-1 rounded">Space</span> - পজ/চালু</p>
-                    </CardContent>
-                </Card>
-                 <Card>
-                    <CardHeader className="p-4">
-                        <CardTitle className="text-lg">ফলের পয়েন্ট</CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-4 pt-0 text-xs space-y-2">
-                       {Object.values(FoodTypes).map(ft => (
-                           <div key={ft.emoji} className="flex items-center gap-2">
-                               <span className="text-xl">{ft.emoji}</span>
-                               <span className="text-muted-foreground">{ft.points} পয়েন্ট</span>
-                           </div>
-                       ))}
-                    </CardContent>
-                </Card>
-            </div>
+          <div className="w-full md:w-[280px] shrink-0 space-y-4">
+            <Card>
+              <CardHeader className="p-4">
+                <CardTitle className="text-lg">খেলার পরিসংখ্যান</CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 pt-0 space-y-3 text-sm">
+                <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground">স্কোর</span>
+                  <span className="font-bold">{score}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground">সর্বোচ্চ স্কোর</span>
+                  <span className="font-bold">{highScore}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground">লেভেল</span>
+                  <span className="font-bold">{level}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground">গতি</span>
+                  <span className="font-bold">{speed ? (200 / speed * 10).toFixed(1) : 0}</span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground text-xs">লেভেল আপ: {LEVEL_UP_SCORE - (score % LEVEL_UP_SCORE)} পয়েন্ট বাকি</span>
+                  <Progress value={(score % LEVEL_UP_SCORE) / LEVEL_UP_SCORE * 100} className="mt-1 h-2" />
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="p-4">
+                <CardTitle className="text-lg">নিয়ন্ত্রণ</CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 pt-0 text-xs text-muted-foreground space-y-1">
+                <p><span className="font-mono bg-muted p-1 rounded">↑ W</span> - উপরে যান</p>
+                <p><span className="font-mono bg-muted p-1 rounded">↓ S</span> - নিচে যান</p>
+                <p><span className="font-mono bg-muted p-1 rounded">← A</span> - বামে যান</p>
+                <p><span className="font-mono bg-muted p-1 rounded">→ D</span> - ডানে যান</p>
+                <p><span className="font-mono bg-muted p-1 rounded">Space</span> - পজ/চালু</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="p-4">
+                <CardTitle className="text-lg">ফলের পয়েন্ট</CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 pt-0 text-xs space-y-2">
+                {Object.values(FoodTypes).map(ft => (
+                  <div key={ft.emoji} className="flex items-center gap-2">
+                    <span className="text-xl">{ft.emoji}</span>
+                    <span className="text-muted-foreground">{ft.points} পয়েন্ট</span>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </main>
