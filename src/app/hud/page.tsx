@@ -248,7 +248,7 @@ export default function SnakeGamePage() {
                         top: `${segment.y * (100 / GRID_SIZE)}%`,
                         width: `${100 / GRID_SIZE}%`,
                         height: `${100 / GRID_SIZE}%`,
-                        transition: 'left 0.1s linear, top 0.1s linear',
+                        transition: `left ${speed ? speed / 1000 : 0}s linear, top ${speed ? speed / 1000 : 0}s linear`,
                       }}
                     />
                   ))}
