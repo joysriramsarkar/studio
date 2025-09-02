@@ -225,15 +225,16 @@ export default function SnakeGamePage() {
         
         <div className="flex flex-col lg:flex-row gap-8">
             <div className="flex-grow flex items-center justify-center">
-                <Card className="shadow-2xl">
-                    <CardContent className="p-1 sm:p-2">
+                <Card className="shadow-2xl aspect-square w-full max-w-[600px] lg:max-w-none">
+                    <CardContent className="p-1 sm:p-2 h-full">
                         <div
-                            className="relative bg-muted/20 border-2 border-primary/20 aspect-square"
-                            style={{ width: '100%', maxWidth: BOARD_SIZE, maxHeight: BOARD_SIZE }}
+                            className="relative bg-muted/20 border-2 border-primary/20 h-full w-full"
                         >
                              <div
-                                className="absolute inset-0 grid grid-cols-30 grid-rows-30"
+                                className="absolute inset-0"
                                 style={{
+                                    gridTemplateColumns: `repeat(${GRID_SIZE}, 1fr)`,
+                                    gridTemplateRows: `repeat(${GRID_SIZE}, 1fr)`,
                                     backgroundSize: `${CELL_SIZE}px ${CELL_SIZE}px`,
                                     backgroundImage: 'linear-gradient(to right, hsl(var(--border)) 1px, transparent 1px), linear-gradient(to bottom, hsl(var(--border)) 1px, transparent 1px)',
                                     opacity: 0.1
@@ -244,8 +245,8 @@ export default function SnakeGamePage() {
                                 key={index}
                                 className={`absolute ${index === 0 ? 'bg-primary' : 'bg-primary/70'} rounded-sm`}
                                 style={{
-                                    left: `${segment.x / GRID_SIZE * 100}%`,
-                                    top: `${segment.y / GRID_SIZE * 100}%`,
+                                    left: `${segment.x * (100 / GRID_SIZE)}%`,
+                                    top: `${segment.y * (100 / GRID_SIZE)}%`,
                                     width: `${100 / GRID_SIZE}%`,
                                     height: `${100 / GRID_SIZE}%`,
                                 }}
@@ -254,8 +255,8 @@ export default function SnakeGamePage() {
                             <div
                                 className="absolute text-xl flex items-center justify-center"
                                 style={{
-                                    left: `${food.x / GRID_SIZE * 100}%`,
-                                    top: `${food.y / GRID_SIZE * 100}%`,
+                                    left: `${food.x * (100 / GRID_SIZE)}%`,
+                                    top: `${food.y * (100 / GRID_SIZE)}%`,
                                     width: `${100 / GRID_SIZE}%`,
                                     height: `${100 / GRID_SIZE}%`,
                                 }}
@@ -267,8 +268,8 @@ export default function SnakeGamePage() {
                                     key={index}
                                     className="absolute bg-foreground/50 rounded-sm"
                                     style={{
-                                        left: `${obs.x / GRID_SIZE * 100}%`,
-                                        top: `${obs.y / GRID_SIZE * 100}%`,
+                                        left: `${obs.x * (100 / GRID_SIZE)}%`,
+                                        top: `${obs.y * (100 / GRID_SIZE)}%`,
                                         width: `${100 / GRID_SIZE}%`,
                                         height: `${100 / GRID_SIZE}%`,
                                     }}
