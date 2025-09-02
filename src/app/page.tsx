@@ -9,12 +9,12 @@ export default function Home() {
     <main className="relative min-h-screen flex flex-col items-center justify-center text-foreground overflow-hidden">
       <Image
         src="https://picsum.photos/1920/1080"
-        alt="Battlefield"
-        data-ai-hint="battlefield soldier"
+        alt="Light abstract background"
+        data-ai-hint="light abstract"
         fill
         className="object-cover z-0"
       />
-      <div className="absolute inset-0 bg-background/60 z-10" />
+      <div className="absolute inset-0 bg-background/80 z-10" />
       <div className="z-20 flex flex-col items-center gap-8 text-center px-4">
         <h1 className="text-7xl md:text-9xl font-headline tracking-tighter uppercase drop-shadow-lg" style={{ WebkitTextStroke: '2px hsl(var(--primary))', color: 'transparent' }}>
           আয়রনক্ল্যাড
