@@ -1,0 +1,58 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root, .theme-default.dark {
+    --background: 48 96% 97%;
+    --foreground: 48 96% 10%;
+    --card: 48 96% 94%;
+    --card-foreground: 48 96% 10%;
+    --popover: 48 96% 94%;
+    --popover-foreground: 48 96% 10%;
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 142.1 70.2% 40.3%;
+    --secondary-foreground: 144 64.3% 95.1%;
+    --muted: 217.2 32.6% 85.5%;
+    --muted-foreground: 215 20.2% 35.1%;
+    --accent: 217.2 32.6% 85.5%;
+    --accent-foreground: 215 20.2% 35.1%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 80.5%;
+    --input: 217.2 32.6% 80.5%;
+    --ring: 212.7 26.8% 83.9%;
+    --radius: 0.5rem;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
+
+  .theme-forest.dark {
+    --primary: 142.1 76.2% 36.3%;
+    --primary-foreground: 144 64.3% 95.1%;
+  }
+
+  .theme-rose.dark {
+    --primary: 346.8 77.2% 49.8%;
+    --primary-foreground: 355.7 100% 97.3%;
+  }
+
+  .theme-orange.dark {
+    --primary: 24.6 95% 53.1%;
+    --primary-foreground: 25.7 100% 96.7%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
